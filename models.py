@@ -35,6 +35,24 @@ class User(db.Model, SerializerMixin):
     email = db.Column(db.String(100), unique=True, nullable=False)
     phone = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(20), default="attendee")  # attendee, organizer, admin
+    role = db.Column(db.String(20), default="attendee")  
     status = db.Column(db.String(20), default="active")
     created_at = db.Column(db.DateTime, default=datetime.now)
+
+    events = db.relationship("Event", back_populates="organizer", cascade="all, delete")
+    orders = db.relationship("Order", back_populates="attendee", cascade="all, delete")
+    reviews = db.relationship("Review", back_populates="attendee", cascade="all, delete")
+    saved_events = db.relationship("SavedEvent", back_populates="user", cascade="all, delete")
+    logs = db.relationship("Log", back_populates="user")
+    reports = db.relationship("Report", back_populates="admin")
+
+    def _repr_(self):
+        return f"<User {self.first_name} {self.last_name}>"
+
+    @validates("email")
+    def validate_email(self, key, value):
+        normalized = value.strip().lower()
+        reg = r"[A-Za-z][A-Za-z0-9](\.[A-Za-z0-9]+)@[A-Za-z0-9]+\.[a-z]{2,}"
+        if not re.match(reg, normalized):
+            raise ValueError("Invalid email format")
+        return normalized
