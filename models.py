@@ -26,3 +26,9 @@ class Review(db.Model, SerializerMixin):
 
     attendee_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     event_id = db.Column(db.Integer, db.ForeignKey("events.id"))
+
+    attendee = db.relationship("User", back_populates="reviews")
+    event = db.relationship("Event", back_populates="reviews")
+
+
+
