@@ -24,3 +24,7 @@ jwt = JWTManager(app)
 migrate = Migrate(app, db)
 CORS(app)
 api = Api(app)
+
+@app.route("/")
+def home():
+    return {"message": "Event Ticketing Backend running"}
