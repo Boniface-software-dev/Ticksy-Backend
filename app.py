@@ -28,3 +28,15 @@ api = Api(app)
 @app.route("/")
 def home():
     return {"message": "Event Ticketing Backend running"}
+
+
+@jwt.unauthorized_loader
+def missing_token(error):
+    return {
+        "message": "Authorization required",
+        "success": False,
+        "errors": ["Authorization token is required"],
+    }, 401
+
+
+    
