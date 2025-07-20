@@ -39,4 +39,5 @@ def missing_token(error):
     }, 401
 
 
-    
+if __name__ == "__main__":
+    app.run(debug=True)
