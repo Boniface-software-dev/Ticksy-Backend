@@ -18,3 +18,9 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
 
 
 
+db.init_app(app)
+bcrypt = Bcrypt(app)
+jwt = JWTManager(app)
+migrate = Migrate(app, db)
+CORS(app)
+api = Api(app)
