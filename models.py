@@ -23,3 +23,6 @@ class Review(db.Model, SerializerMixin):
     rating = db.Column(db.Integer, nullable=False)
     comment = db.Column(db.String, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.now)
+
+    attendee_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    event_id = db.Column(db.Integer, db.ForeignKey("events.id"))
