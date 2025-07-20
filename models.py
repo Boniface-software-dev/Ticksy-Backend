@@ -18,6 +18,8 @@ db = SQLAlchemy(metadata=metadata)
 
 class Review(db.Model, SerializerMixin):
     __tablename__ = "reviews"
+    serialize_rules = ("-attendee.reviews", "-event.reviews")
+
 
     id = db.Column(db.Integer, primary_key=True)
     rating = db.Column(db.Integer, nullable=False)
