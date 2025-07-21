@@ -9,3 +9,12 @@ from utils.logger import log_action
 from sqlalchemy.exc import SQLAlchemyError
 from datetime import timedelta
 import re
+
+
+signup_parser = reqparse.RequestParser()
+signup_parser.add_argument("first_name", type=str, required=True)
+signup_parser.add_argument("last_name", type=str, required=True)
+signup_parser.add_argument("email", type=str, required=True)
+signup_parser.add_argument("phone", type=str, required=True)
+signup_parser.add_argument("password", type=str, required=True)
+signup_parser.add_argument("role", type=str, required=True)
