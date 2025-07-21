@@ -10,6 +10,7 @@ from datetime import timedelta
 
 from models import db
 from resources.auth import Signup, Login
+from resources.events import EventList, SingleEvent, CreateEvent, UpdateEvent, DeleteEvent, MyEvents
 
 from resources.admin_events import PendingEvents, ApproveRejectEvent
 
@@ -64,6 +65,13 @@ api.add_resource(AdminAuditLogs, "/admin/logs")
 approve/
 api.add_resource(PendingEvents, "/admin/pending")
 api.add_resource(ApproveRejectEvent, "/admin/<int:id>")
+
+api.add_resource(EventList, "/events")
+api.add_resource(SingleEvent, "/events/<int:id>")
+api.add_resource(CreateEvent, "/events")
+api.add_resource(UpdateEvent, "/events/<int:id>")
+api.add_resource(DeleteEvent, "/events/<int:id>")
+api.add_resource(MyEvents, "/my-events")
 
 
 if __name__ == "__main__":

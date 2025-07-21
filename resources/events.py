@@ -5,6 +5,9 @@ from models import Event, User, db
 from utils.logger import log_action
 from datetime import datetime
 
+Edwin/events
+
+
 # ---------- Event Creation Parser ----------
 event_parser = reqparse.RequestParser()
 event_parser.add_argument("title", type=str, required=True)
@@ -12,11 +15,19 @@ event_parser.add_argument("description", type=str, required=True)
 event_parser.add_argument("location", type=str, required=True)
 event_parser.add_argument("start_time", type=str, required=True)
 event_parser.add_argument("end_time", type=str, required=True)
+
+event_parser.add_argument("category", type=str, required=False)
+event_parser.add_argument("tags", type=str, required=False)
+event_parser.add_argument("image_url", type=str, required=False)
+
+
+
 event_parser.add_argument("category", type=str, required=True)
 event_parser.add_argument("tags", type=str, required=True)
 event_parser.add_argument("image_url", type=str, required=True)
 
 # ---------- Public: GET All Approved Events ----------
+
 class EventList(Resource):
     def get(self):
         events = Event.query.filter_by(is_approved=True).order_by(Event.start_time.asc()).all()
@@ -27,8 +38,11 @@ class EventList(Resource):
         )) for e in events], 200
 
 
+ Edwin/events
+
 
 # ---------- Public: GET Single Event Details ----------
+
 class SingleEvent(Resource):
     def get(self, id):
         event = Event.query.filter_by(id=id, is_approved=True).first()
@@ -42,7 +56,11 @@ class SingleEvent(Resource):
             "tickets.id", "tickets.type", "tickets.price"
         )), 200
 
+ Edwin/events
+
+
 # ---------- Organizer: Create Event ----------
+
 class CreateEvent(Resource):
     @jwt_required()
     def post(self):
@@ -92,7 +110,11 @@ class CreateEvent(Resource):
             )
             return {"message": "Event creation failed."}, 500
 
+
+
+
 # ---------- Organizer: Update Event ----------
+
 class UpdateEvent(Resource):
     @jwt_required()
     def put(self, id):
@@ -135,7 +157,11 @@ class UpdateEvent(Resource):
             )
             return {"message": "Event update failed."}, 500
 
+ Edwin/events
+
+
 # ---------- Organizer: Delete Event ----------
+
 class DeleteEvent(Resource):
     @jwt_required()
     def delete(self, id):
@@ -161,7 +187,12 @@ class DeleteEvent(Resource):
         )
 
         return {"message": "Event deleted successfully."}, 200
+
+
+
+
 # ---------- Organizer: List Own Events ----------
+
 class MyEvents(Resource):
     @jwt_required()
     def get(self):
@@ -170,4 +201,8 @@ class MyEvents(Resource):
         return [e.to_dict(only=(
             "id", "title", "description", "location",
             "start_time", "end_time", "category", "tags", "image_url", "is_approved"
+
         )) for e in events], 200
+
+        )) for e in events], 200
+
