@@ -1,13 +1,10 @@
-# resources/auth.py
-
 from flask_restful import Resource, reqparse
 from flask import request
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token
 from models import db, User
 from utils.logger import log_action
-from sqlalchemy.exc import SQLAlchemyError
 from datetime import timedelta
+import bcrypt  # BCRYPT USED HERE
 import re
 
 
@@ -18,6 +15,10 @@ signup_parser.add_argument("email", type=str, required=True)
 signup_parser.add_argument("phone", type=str, required=True)
 signup_parser.add_argument("password", type=str, required=True)
 signup_parser.add_argument("role", type=str, required=True)
+
+login_parser = reqparse.RequestParser()
+login_parser.add_argument("email", type=str, required=True)
+login_parser.add_argument("password", type=str, required=True)
 
 
 class Signup(Resource):
@@ -41,12 +42,14 @@ class Signup(Resource):
             return {"message": "Phone number already in use."}, 400
 
         try:
+            hashed_pw = bcrypt.hashpw(data["password"].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
             user = User(
                 first_name=data["first_name"].strip(),
                 last_name=data["last_name"].strip(),
                 email=email,
                 phone=phone,
-                password=generate_password_hash(data["password"]),
+                password=hashed_pw,
                 role=role
             )
 
@@ -64,7 +67,7 @@ class Signup(Resource):
 
             return {"message": f"{role.capitalize()} account created successfully."}, 201
 
-        except SQLAlchemyError as e:
+        except Exception as e:
             db.session.rollback()
             log_action(
                 user_id=None,
@@ -77,20 +80,17 @@ class Signup(Resource):
             )
             return {"message": "Signup failed due to a server error."}, 500
         
-# ---------- Login ----------
+
 class Login(Resource):
     def post(self):
         data = login_parser.parse_args()
         email = data["email"].strip().lower()
-        password = data["password"]
+        password = data["password"].encode('utf-8')
 
         user = User.query.filter_by(email=email).first()
 
-        if user and check_password_hash(user.password, password):
-            token = create_access_token(
-                identity=user.id,
-                expires_delta=timedelta(days=1)
-            )
+        if user and bcrypt.checkpw(password, user.password.encode('utf-8')):
+            token = create_access_token(identity=user.id, expires_delta=timedelta(days=1))
 
             log_action(
                 user_id=user.id,
