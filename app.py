@@ -17,7 +17,7 @@ from resources.admin_events import PendingEvents, ApproveRejectEvent
 from resources.admin_users import AllUsers, BanOrUnbanUser, UpdateUserRole
 from resources.admin_dashboard import AdminDashboard, AdminReports, AdminAuditLogs
 
-
+from resources.orders import CreateOrder, ConfirmPayment, MyOrders, SingleOrder
 
 
 load_dotenv()
@@ -62,7 +62,7 @@ api.add_resource(AdminDashboard, "/admin/dashboard")
 api.add_resource(AdminReports, "/admin/reports")
 api.add_resource(AdminAuditLogs, "/admin/logs")
 
-approve/
+
 api.add_resource(PendingEvents, "/admin/pending")
 api.add_resource(ApproveRejectEvent, "/admin/<int:id>")
 
@@ -72,6 +72,11 @@ api.add_resource(CreateEvent, "/events")
 api.add_resource(UpdateEvent, "/events/<int:id>")
 api.add_resource(DeleteEvent, "/events/<int:id>")
 api.add_resource(MyEvents, "/my-events")
+
+api.add_resource(CreateOrder, "/orders")
+api.add_resource(ConfirmPayment, "/orders/<int:id>/pay")
+api.add_resource(MyOrders, "/orders")
+api.add_resource(SingleOrder, "/orders/<int:id>")
 
 
 if __name__ == "__main__":
