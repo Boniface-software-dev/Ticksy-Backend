@@ -49,6 +49,9 @@ def missing_token(error):
     
 api.add_resource(Signup, "/signup")
 api.add_resource(Login, "/login")
+api.add_resource(AllUsers, "/admin/users")
+api.add_resource(BanOrUnbanUser, "/admin/users/<int:id>/status")
+api.add_resource(UpdateUserRole, "/admin/users/<int:id>/role")
 
 
 if __name__ == "__main__":
