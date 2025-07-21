@@ -79,3 +79,48 @@ class Signup(Resource):
                 extra_data=str(e)
             )
             return {"message": "Signup failed due to a server error."}, 500
+        
+
+class Login(Resource):
+    def post(self):
+        data = login_parser.parse_args()
+        email = data["email"].strip().lower()
+        password = data["password"].encode('utf-8')
+
+        user = User.query.filter_by(email=email).first()
+
+        if user and bcrypt.checkpw(password, user.password.encode('utf-8')):
+            token = create_access_token(identity=user.id, expires_delta=timedelta(days=1))
+
+            log_action(
+                user_id=user.id,
+                action="Login",
+                target_type="User",
+                target_id=user.id,
+                status="Success",
+                ip_address=request.remote_addr
+            )
+
+            return {
+                "access_token": token,
+                "user": {
+                    "id": user.id,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "email": user.email,
+                    "phone": user.phone,
+                    "role": user.role,
+                    "status": user.status
+                }
+            }, 200
+
+        log_action(
+            user_id=user.id if user else None,
+            action="Login",
+            target_type="User",
+            target_id=user.id if user else None,
+            status="Failed",
+            ip_address=request.remote_addr,
+            extra_data="Invalid credentials"
+        )
+        return {"message": "Invalid email or password."}, 401
