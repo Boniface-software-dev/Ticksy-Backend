@@ -19,9 +19,6 @@ signup_parser.add_argument("phone", type=str, required=True)
 signup_parser.add_argument("password", type=str, required=True)
 signup_parser.add_argument("role", type=str, required=True)
 
-login_parser = reqparse.RequestParser()
-login_parser.add_argument("email", type=str, required=True)
-login_parser.add_argument("password", type=str, required=True)
 
 
 class Signup(Resource):
