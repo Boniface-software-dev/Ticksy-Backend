@@ -19,10 +19,6 @@ from resources.admin_dashboard import AdminDashboard, AdminReports, AdminAuditLo
 
 from resources.tickets import CreateTicket, EventTickets
 from resources.reviews import PostReview, EventReviews
-
-
-
-
 load_dotenv()
 
 
