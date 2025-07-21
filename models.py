@@ -173,3 +173,19 @@ class Report(db.Model, SerializerMixin):
 
     admin = db.relationship("User", back_populates="reports")
     event = db.relationship("Event", back_populates="reports")
+    
+
+class Ticket(db.Model, SerializerMixin):
+    _tablename_ = "tickets"
+    serialize_rules = ("-event.tickets", "-order_items.ticket")
+
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    sold = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+
+    event_id = db.Column(db.Integer, db.ForeignKey("events.id"))
+    event = db.relationship("Event", back_populates="tickets")
+    order_items = db.relationship("OrderItem", back_populates="ticket")
