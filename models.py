@@ -48,6 +48,8 @@ class OrderItem(db.Model, SerializerMixin):
     order = db.relationship("Order", back_populates="order_items")
     ticket = db.relationship("Ticket", back_populates="order_items")
 
+    event_passes = db.relationship("EventPass", back_populates="order_item", cascade="all, delete-orphan")
+
 
 class EventPass(db.Model, SerializerMixin):
     __tablename__ = "event_passes"
