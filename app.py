@@ -10,6 +10,7 @@ from datetime import timedelta
 
 from models import db
 from resources.auth import Signup, Login
+from resources.events import EventList, SingleEvent, CreateEvent, UpdateEvent, DeleteEvent, MyEvents
 
 load_dotenv()
 
@@ -46,6 +47,13 @@ def missing_token(error):
 
 api.add_resource(Signup, '/signup')
 api.add_resource(Login, '/login')
+
+api.add_resource(EventList, "/events")
+api.add_resource(SingleEvent, "/events/<int:id>")
+api.add_resource(CreateEvent, "/events")
+api.add_resource(UpdateEvent, "/events/<int:id>")
+api.add_resource(DeleteEvent, "/events/<int:id>")
+api.add_resource(MyEvents, "/my-events")
 
 
 if __name__ == "__main__":
