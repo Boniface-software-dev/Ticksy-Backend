@@ -30,6 +30,10 @@ class Order(db.Model, SerializerMixin):
     total_amount = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now)
 
+    attendee_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    attendee = db.relationship("User", back_populates="orders")
+    order_items = db.relationship("OrderItem", back_populates="order", cascade="all, delete")
+
 
 class OrderItem(db.Model, SerializerMixin):
     __tablename__ = "order_items"
@@ -40,6 +44,9 @@ class OrderItem(db.Model, SerializerMixin):
 
     order_id = db.Column(db.Integer, db.ForeignKey("orders.id"))
     ticket_id = db.Column(db.Integer, db.ForeignKey("tickets.id"))
+
+    order = db.relationship("Order", back_populates="order_items")
+    ticket = db.relationship("Ticket", back_populates="order_items")
 
 
 class EventPass(db.Model, SerializerMixin):
@@ -53,3 +60,6 @@ class EventPass(db.Model, SerializerMixin):
     attendee_email = db.Column(db.String(150), nullable=False)
     attendee_phone = db.Column(db.String(20), nullable=False)
     att_status = db.Column(db.Boolean, default=False)
+
+    order_item_id = db.Column(db.Integer, db.ForeignKey("order_items.id"), nullable=False)
+    order_item = db.relationship("OrderItem", back_populates="event_passes")
