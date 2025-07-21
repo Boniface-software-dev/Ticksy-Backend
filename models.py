@@ -30,4 +30,15 @@ class Order(db.Model, SerializerMixin):
     total_amount = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now)
 
-    
+
+class OrderItem(db.Model, SerializerMixin):
+    __tablename__ = "order_items"
+    serialize_rules = ("-order.order_items", "-ticket.order_items")
+
+    id = db.Column(db.Integer, primary_key=True)
+    quantity = db.Column(db.Integer, nullable=False)
+
+    order_id = db.Column(db.Integer, db.ForeignKey("orders.id"))
+    ticket_id = db.Column(db.Integer, db.ForeignKey("tickets.id"))
+
+
