@@ -69,5 +69,52 @@ class BanOrUnbanUser(Resource):
                 extra_data=str(e)
             )
             return {"message": "Failed to update user status."}, 500
+        
+
+class UpdateUserRole(Resource):
+    @jwt_required()
+    def patch(self, id):
+        admin = User.query.get(get_jwt_identity())
+        if not admin or admin.role != "admin":
+            return {"message": "Admins only."}, 403
+
+        user = User.query.get(id)
+        if not user:
+            return {"message": "User not found."}, 404
+
+        data = role_parser.parse_args()
+        new_role = data["role"].strip().lower()
+
+        if new_role not in ["attendee", "organizer", "admin"]:
+            return {"message": "Invalid role."}, 400
+
+        try:
+            user.role = new_role
+            db.session.commit()
+
+            log_action(
+                user_id=admin.id,
+                action="Updated User Role",
+                target_type="User",
+                target_id=user.id,
+                status="Success",
+                ip_address=request.remote_addr,
+                extra_data={"new_role": new_role}
+            )
+
+            return {"message": f"User role updated to {new_role}."}, 200
+
+        except Exception as e:
+            db.session.rollback()
+            log_action(
+                user_id=admin.id,
+                action="Update User Role",
+                target_type="User",
+                target_id=user.id,
+                status="Failed",
+                ip_address=request.remote_addr,
+                extra_data=str(e)
+            )
+            return {"message": "Failed to update user role."}, 500
 
 
