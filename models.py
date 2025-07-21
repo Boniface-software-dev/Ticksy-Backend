@@ -16,6 +16,25 @@ convention = {
 metadata = MetaData(naming_convention=convention)
 db = SQLAlchemy(metadata=metadata)
 
+
+class Review(db.Model, SerializerMixin):
+    __tablename__ = "reviews"
+    serialize_rules = ("-attendee.reviews", "-event.reviews")
+
+
+    id = db.Column(db.Integer, primary_key=True)
+    rating = db.Column(db.Integer, nullable=False)
+    comment = db.Column(db.String, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+
+    attendee_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    event_id = db.Column(db.Integer, db.ForeignKey("events.id"))
+
+    attendee = db.relationship("User", back_populates="reviews")
+    event = db.relationship("Event", back_populates="reviews")
+
+
+
 # ------------------ User ------------------
 class User(db.Model, SerializerMixin):
     _tablename_ = "users"
@@ -56,9 +75,9 @@ class User(db.Model, SerializerMixin):
         if not re.match(reg, normalized):
             raise ValueError("Invalid email format")
         return normalized
-=======
 
-db = SQLAlchemy(metadata=metadata)
+
+
 
 
 
@@ -139,4 +158,5 @@ class SavedEvent(db.Model, SerializerMixin):
 
     user = db.relationship("User", back_populates="saved_events")
     event = db.relationship("Event", back_populates="saved_events")
+
 
