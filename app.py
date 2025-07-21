@@ -19,10 +19,7 @@ from resources.admin_dashboard import AdminDashboard, AdminReports, AdminAuditLo
 
 from resources.tickets import CreateTicket, EventTickets
 from resources.reviews import PostReview, EventReviews
-
-
-
-
+from resources.profile import MyProfile, UpdateProfile
 load_dotenv()
 
 
@@ -80,6 +77,11 @@ api.add_resource(EventTickets, "/events/<int:event_id>/tickets")
 
 api.add_resource(PostReview, "/events/<int:id>/review")
 api.add_resource(EventReviews, "/events/<int:id>/reviews")
+
+api.add_resource(MyProfile, "/profile/me")
+api.add_resource(UpdateProfile, "/profile/me")
+
+
 
 
 if __name__ == "__main__":
