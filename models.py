@@ -160,3 +160,16 @@ class SavedEvent(db.Model, SerializerMixin):
     event = db.relationship("Event", back_populates="saved_events")
 
 
+class Report(db.Model, SerializerMixin):
+    __tablename__ = "reports"
+    serialize_rules = ("-admin.reports", "-event.reports")
+
+    id = db.Column(db.Integer, primary_key=True)
+    generated_at = db.Column(db.DateTime, default=datetime.now)
+    report_data = db.Column(db.Text)
+
+    admin_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    event_id = db.Column(db.Integer, db.ForeignKey("events.id"))
+
+    admin = db.relationship("User", back_populates="reports")
+    event = db.relationship("Event", back_populates="reports")
