@@ -119,19 +119,26 @@ class EventPass(db.Model, SerializerMixin):
 
     order_item_id = db.Column(db.Integer, db.ForeignKey("order_items.id"), nullable=False)
     order_item = db.relationship("OrderItem", back_populates="event_passes")
-
-
-class Log(db.Model, SerializerMixin):
-    __tablename__ = "logs"
+class AuditLog(db.Model, SerializerMixin):
+    __tablename__ = "audit_logs"
     serialize_rules = ("-user.logs",)
 
     id = db.Column(db.Integer, primary_key=True)
-    action = db.Column(db.String)
-    meta_data = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.now)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    action = db.Column(db.String(255), nullable=False)
+    target_type = db.Column(db.String(100), nullable=True)
+    target_id = db.Column(db.Integer, nullable=True)
+    status = db.Column(db.String(50), default="Success", nullable=False)
+    ip_address = db.Column(db.String(100), nullable=True)
+    extra_data = db.Column(db.JSON, nullable=True)
 
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    user = db.relationship("User", back_populates="logs")
+    user = db.relationship("User", backref="logs")
+
+    def __repr__(self):
+        return f"<AuditLog {self.action} by User {self.user_id} at {self.timestamp}>"
+
+
 
 class SavedEvent(db.Model, SerializerMixin):
     __tablename__ = "saved_events"
