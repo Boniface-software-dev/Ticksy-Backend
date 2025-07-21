@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from datetime import timedelta
 
 from models import db
+from resources.auth import Signup, Login
 
 load_dotenv()
 
@@ -42,6 +43,9 @@ def missing_token(error):
         "success": False,
         "errors": ["Authorization token is required"],
     }, 401
+
+api.add_resource(Signup, '/signup')
+api.add_resource(Login, '/login')
 
 
 if __name__ == "__main__":
