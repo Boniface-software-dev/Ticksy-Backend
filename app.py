@@ -14,6 +14,7 @@ from resources.auth import Signup, Login
 from resources.admin_events import PendingEvents, ApproveRejectEvent
 
 from resources.admin_users import AllUsers, BanOrUnbanUser, UpdateUserRole
+from resources.admin_dashboard import AdminDashboard, AdminReports, AdminAuditLogs
 
 
 
@@ -56,6 +57,9 @@ api.add_resource(Login, "/login")
 api.add_resource(AllUsers, "/admin/users")
 api.add_resource(BanOrUnbanUser, "/admin/users/<int:id>/status")
 api.add_resource(UpdateUserRole, "/admin/users/<int:id>/role")
+api.add_resource(AdminDashboard, "/admin/dashboard")
+api.add_resource(AdminReports, "/admin/reports")
+api.add_resource(AdminAuditLogs, "/admin/logs")
 
 approve/
 api.add_resource(PendingEvents, "/admin/pending")
