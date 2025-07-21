@@ -133,7 +133,7 @@ class AuditLog(db.Model, SerializerMixin):
     ip_address = db.Column(db.String(100), nullable=True)
     extra_data = db.Column(db.JSON, nullable=True)
 
-    user = db.relationship("User", backref="logs")
+    
 
     def __repr__(self):
         return f"<AuditLog {self.action} by User {self.user_id} at {self.timestamp}>"
