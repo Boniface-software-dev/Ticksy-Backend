@@ -54,3 +54,20 @@ class PostReview(Resource):
         )
 
         return {"message": "Review submitted successfully."}, 201
+    
+class EventReviews(Resource):
+    def get(self, id):
+        event = Event.query.get(id)
+        if not event:
+            return {"message": "Event not found."}, 404
+
+        reviews = Review.query.filter_by(event_id=id).order_by(Review.created_at.desc()).all()
+
+        return [
+            r.to_dict(only=(
+                "id", "rating", "comment", "created_at",
+                "attendee.id", "attendee.first_name", "attendee.last_name"
+            ))
+            for r in reviews
+        ], 200
+
