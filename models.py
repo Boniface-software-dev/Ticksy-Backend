@@ -42,3 +42,14 @@ class OrderItem(db.Model, SerializerMixin):
     ticket_id = db.Column(db.Integer, db.ForeignKey("tickets.id"))
 
 
+class EventPass(db.Model, SerializerMixin):
+    __tablename__ = "event_passes"
+    serialize_rules = ("-order_item.event_passes",)
+
+    id = db.Column(db.Integer, primary_key=True)
+    ticket_code = db.Column(db.String(50), unique=True, nullable=False)
+    attendee_first_name = db.Column(db.String(100), nullable=False)
+    attendee_last_name = db.Column(db.String(100), nullable=False)
+    attendee_email = db.Column(db.String(150), nullable=False)
+    attendee_phone = db.Column(db.String(20), nullable=False)
+    att_status = db.Column(db.Boolean, default=False)
