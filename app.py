@@ -20,6 +20,8 @@ from resources.admin_dashboard import AdminDashboard, AdminReports, AdminAuditLo
 from resources.tickets import CreateTicket, EventTickets
 from resources.reviews import PostReview, EventReviews
 from resources.profile import MyProfile, UpdateProfile
+
+from resources.profile_events import MyUpcomingEvents, MyPastEvents
 load_dotenv()
 
 
@@ -80,6 +82,9 @@ api.add_resource(EventReviews, "/events/<int:id>/reviews")
 
 api.add_resource(MyProfile, "/profile/me")
 api.add_resource(UpdateProfile, "/profile/me")
+
+api.add_resource(MyUpcomingEvents, "/profile/my-upcoming-events")
+api.add_resource(MyPastEvents, "/profile/my-past-events")
 
 
 
