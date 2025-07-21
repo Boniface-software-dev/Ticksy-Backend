@@ -6,9 +6,6 @@ from flask import request
 from models import Event, User, db
 from utils.logger import log_action
 
-approve_parser = reqparse.RequestParser()
-approve_parser.add_argument("status", type=str, required=True)  # 'approved' or 'rejected'
-
 
 approve_parser = reqparse.RequestParser()
 approve_parser.add_argument("status", type=str, required=True)  # 'approved' or 'rejected'

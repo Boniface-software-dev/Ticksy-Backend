@@ -14,6 +14,9 @@ from resources.events import EventList, SingleEvent, CreateEvent, UpdateEvent, D
 
 from resources.admin_events import PendingEvents, ApproveRejectEvent
 
+from resources.saved_events import SaveEvent, MySavedEvents
+
+
 from resources.admin_users import AllUsers, BanOrUnbanUser, UpdateUserRole
 from resources.admin_dashboard import AdminDashboard, AdminReports, AdminAuditLogs
 
@@ -22,6 +25,7 @@ from resources.orders import CreateOrder, ConfirmPayment, MyOrders, SingleOrder
 
 from resources.tickets import CreateTicket, EventTickets
 from resources.reviews import PostReview, EventReviews
+
 
 
 
@@ -75,6 +79,14 @@ api.add_resource(AdminAuditLogs, "/admin/logs")
 
 
 
+
+
+api.add_resource(PendingEvents, "/admin/pending")
+api.add_resource(ApproveRejectEvent, "/admin/<int:id>")
+
+api.add_resource(SaveEvent, "/events/<int:id>/save")
+api.add_resource(MySavedEvents, "/my-saved-events")
+
 api.add_resource(PendingEvents, "/admin/pending")
 api.add_resource(ApproveRejectEvent, "/admin/<int:id>")
 
@@ -102,8 +114,6 @@ api.add_resource(EventReviews, "/events/<int:id>/reviews")
 
 api.add_resource(MyProfile, "/profile/me")
 api.add_resource(UpdateProfile, "/profile/me")
-
-
 
 
 
