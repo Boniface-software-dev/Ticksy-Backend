@@ -35,7 +35,7 @@ class Review(db.Model, SerializerMixin):
 
 
 class User(db.Model, SerializerMixin):
-    _tablename_ = "users"
+    __tablename__ = "users"
     serialize_rules = (
         "-password",
         "-events.organizer",
@@ -167,7 +167,7 @@ class Report(db.Model, SerializerMixin):
     
 
 class Ticket(db.Model, SerializerMixin):
-    _tablename_ = "tickets"
+    __tablename__ = "tickets"
     serialize_rules = ("-event.tickets", "-order_items.ticket")
 
     id = db.Column(db.Integer, primary_key=True)
