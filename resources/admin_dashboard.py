@@ -50,3 +50,26 @@ class AdminDashboard(Resource):
                 for e in recent_events
             ]
         }, 200
+
+class AdminReports(Resource):
+    @jwt_required()
+    def get(self):
+        admin = User.query.get(get_jwt_identity())
+        if not admin or admin.role != "admin":
+            return {"message": "Admins only."}, 403
+
+        reports = Report.query.order_by(Report.generated_at.desc()).all()
+
+        log_action(
+            user_id=admin.id,
+            action="Viewed Reports",
+            target_type="Report",
+            target_id=None,
+            status="Success",
+            ip_address=request.remote_addr
+        )
+
+        return [
+            r.to_dict(only=("id", "report_data", "generated_at", "event_id", "admin_id"))
+            for r in reports
+        ], 200
