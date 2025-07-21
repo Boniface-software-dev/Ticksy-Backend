@@ -16,6 +16,25 @@ convention = {
 metadata = MetaData(naming_convention=convention)
 db = SQLAlchemy(metadata=metadata)
 
+
+class Review(db.Model, SerializerMixin):
+    __tablename__ = "reviews"
+    serialize_rules = ("-attendee.reviews", "-event.reviews")
+
+
+    id = db.Column(db.Integer, primary_key=True)
+    rating = db.Column(db.Integer, nullable=False)
+    comment = db.Column(db.String, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+
+    attendee_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    event_id = db.Column(db.Integer, db.ForeignKey("events.id"))
+
+    attendee = db.relationship("User", back_populates="reviews")
+    event = db.relationship("Event", back_populates="reviews")
+
+
+
 # ------------------ User ------------------
 class User(db.Model, SerializerMixin):
     __tablename__ = "users"
@@ -128,3 +147,34 @@ class SavedEvent(db.Model, SerializerMixin):
 
     user = db.relationship("User", back_populates="saved_events")
     event = db.relationship("Event", back_populates="saved_events")
+
+class Report(db.Model, SerializerMixin):
+    __tablename__ = "reports"
+    serialize_rules = ("-admin.reports", "-event.reports")
+
+    id = db.Column(db.Integer, primary_key=True)
+    generated_at = db.Column(db.DateTime, default=datetime.now)
+    report_data = db.Column(db.Text)
+
+    admin_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    event_id = db.Column(db.Integer, db.ForeignKey("events.id"))
+
+    admin = db.relationship("User", back_populates="reports")
+    event = db.relationship("Event", back_populates="reports")
+    
+
+class Ticket(db.Model, SerializerMixin):
+    _tablename_ = "tickets"
+    serialize_rules = ("-event.tickets", "-order_items.ticket")
+
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    sold = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+
+    event_id = db.Column(db.Integer, db.ForeignKey("events.id"))
+    event = db.relationship("Event", back_populates="tickets")
+    order_items = db.relationship("OrderItem", back_populates="ticket")
+
