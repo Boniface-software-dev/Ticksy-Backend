@@ -10,7 +10,11 @@ from datetime import timedelta
 
 from models import db
 from resources.auth import Signup, Login
+
+from resources.admin_events import PendingEvents, ApproveRejectEvent
+
 from resources.admin_users import AllUsers, BanOrUnbanUser, UpdateUserRole
+
 
 
 
@@ -52,6 +56,10 @@ api.add_resource(Login, "/login")
 api.add_resource(AllUsers, "/admin/users")
 api.add_resource(BanOrUnbanUser, "/admin/users/<int:id>/status")
 api.add_resource(UpdateUserRole, "/admin/users/<int:id>/role")
+
+approve/
+api.add_resource(PendingEvents, "/admin/pending")
+api.add_resource(ApproveRejectEvent, "/admin/<int:id>")
 
 
 if __name__ == "__main__":
