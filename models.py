@@ -15,7 +15,7 @@ convention = {
 }
 
 metadata = MetaData(naming_convention=convention)
- HEAD
+
 db = SQLAlchemy(metadata=metadata)
 
 # ------------------ Log ------------------
@@ -32,4 +32,3 @@ class Log(db.Model, SerializerMixin):
     user = db.relationship("User", back_populates="logs")
 
 db = SQLAlchemy(metadata=metadata)
->>>>>>> 2cdba561af720ca8b5ebf193a1f1c1148416e691
