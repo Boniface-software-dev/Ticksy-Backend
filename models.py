@@ -34,8 +34,6 @@ class Review(db.Model, SerializerMixin):
     event = db.relationship("Event", back_populates="reviews")
 
 
-
-# ------------------ User ------------------
 class User(db.Model, SerializerMixin):
     __tablename__ = "users"
     serialize_rules = (
@@ -76,7 +74,7 @@ class User(db.Model, SerializerMixin):
             raise ValueError("Invalid email format")
         return normalized
 
-# ------------------ Order ------------------
+
 class Order(db.Model, SerializerMixin):
     __tablename__ = "orders"
     serialize_rules = ("-attendee.orders", "-order_items.order")
@@ -122,7 +120,7 @@ class EventPass(db.Model, SerializerMixin):
     order_item_id = db.Column(db.Integer, db.ForeignKey("order_items.id"), nullable=False)
     order_item = db.relationship("OrderItem", back_populates="event_passes")
 
-# ------------------ Log ------------------
+
 class Log(db.Model, SerializerMixin):
     __tablename__ = "logs"
     serialize_rules = ("-user.logs",)
