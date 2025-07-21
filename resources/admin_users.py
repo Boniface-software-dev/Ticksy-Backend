@@ -25,3 +25,49 @@ class AllUsers(Resource):
             for u in users
         ], 200
 
+class BanOrUnbanUser(Resource):
+    @jwt_required()
+    def patch(self, id):
+        admin = User.query.get(get_jwt_identity())
+        if not admin or admin.role != "admin":
+            return {"message": "Admins only."}, 403
+
+        user = User.query.get(id)
+        if not user:
+            return {"message": "User not found."}, 404
+
+        data = status_parser.parse_args()
+        new_status = data["status"].strip().lower()
+
+        if new_status not in ["active", "banned"]:
+            return {"message": "Invalid status. Use 'active' or 'banned'."}, 400
+
+        try:
+            user.status = new_status
+            db.session.commit()
+
+            log_action(
+                user_id=admin.id,
+                action=f"{'Banned' if new_status == 'banned' else 'Unbanned'} User",
+                target_type="User",
+                target_id=user.id,
+                status="Success",
+                ip_address=request.remote_addr
+            )
+
+            return {"message": f"User status updated to {new_status}."}, 200
+
+        except Exception as e:
+            db.session.rollback()
+            log_action(
+                user_id=admin.id,
+                action="Update User Status",
+                target_type="User",
+                target_id=user.id,
+                status="Failed",
+                ip_address=request.remote_addr,
+                extra_data=str(e)
+            )
+            return {"message": "Failed to update user status."}, 500
+
+
