@@ -50,9 +50,9 @@ def missing_token(error):
 api.add_resource(Signup, "/signup")
 api.add_resource(Login, "/login")
 
-
+approve/
 api.add_resource(PendingEvents, "/admin/pending")
-api.add_resource(ApproveRejectEvent, "/admin/approve/<int:id>")
+api.add_resource(ApproveRejectEvent, "/admin/<int:id>")
 
 
 if __name__ == "__main__":
