@@ -60,7 +60,7 @@ class User(db.Model, SerializerMixin):
     orders = db.relationship("Order", back_populates="attendee", cascade="all, delete")
     reviews = db.relationship("Review", back_populates="attendee", cascade="all, delete")
     saved_events = db.relationship("SavedEvent", back_populates="user", cascade="all, delete")
-    logs = db.relationship("Log", back_populates="user")
+    logs = db.relationship("AuditLog", backref="user")
     reports = db.relationship("Report", back_populates="admin")
 
     def __repr__(self):
@@ -162,7 +162,7 @@ class Report(db.Model, SerializerMixin):
     
 
 class Ticket(db.Model, SerializerMixin):
-    _tablename_ = "tickets"
+    __tablename__ = "tickets"
     serialize_rules = ("-event.tickets", "-order_items.ticket")
 
     id = db.Column(db.Integer, primary_key=True)
@@ -175,4 +175,35 @@ class Ticket(db.Model, SerializerMixin):
     event_id = db.Column(db.Integer, db.ForeignKey("events.id"))
     event = db.relationship("Event", back_populates="tickets")
     order_items = db.relationship("OrderItem", back_populates="ticket")
+
+class Event(db.Model, SerializerMixin):
+    __tablename__= "events"
+    serialize_rules = (
+        "-organizer.events",
+        "-tickets.event",
+        "-reviews.event",
+        "-saved_events.event",
+        "-reports.event"
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String, nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    location = db.Column(db.String, nullable=False)
+    start_time = db.Column(db.DateTime, nullable=False)
+    end_time = db.Column(db.DateTime, nullable=False)
+    category = db.Column(db.String)
+    tags = db.Column(db.String)
+    is_approved = db.Column(db.Boolean, default=False)
+    status = db.Column(db.String, default="pending")
+    image_url = db.Column(db.String)
+    attendee_count = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+
+    organizer_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    organizer = db.relationship("User", back_populates="events")
+    tickets = db.relationship("Ticket", back_populates="event", cascade="all, delete")
+    reviews = db.relationship("Review", back_populates="event", cascade="all, delete")
+    saved_events = db.relationship("SavedEvent", back_populates="event", cascade="all, delete")
+    reports = db.relationship("Report", back_populates="event")
 
