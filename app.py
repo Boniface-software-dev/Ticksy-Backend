@@ -18,6 +18,7 @@ from resources.admin_users import AllUsers, BanOrUnbanUser, UpdateUserRole
 from resources.admin_dashboard import AdminDashboard, AdminReports, AdminAuditLogs
 
 from resources.tickets import CreateTicket, EventTickets
+from resources.reviews import PostReview, EventReviews
 
 
 
@@ -76,6 +77,9 @@ api.add_resource(MyEvents, "/my-events")
 
 api.add_resource(CreateTicket, "/events/<int:event_id>/tickets")
 api.add_resource(EventTickets, "/events/<int:event_id>/tickets")
+
+api.add_resource(PostReview, "/events/<int:id>/review")
+api.add_resource(EventReviews, "/events/<int:id>/reviews")
 
 
 if __name__ == "__main__":
