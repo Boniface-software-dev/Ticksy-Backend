@@ -30,7 +30,3 @@ class SavedEvent(db.Model, SerializerMixin):
     user = db.relationship("User", back_populates="saved_events")
     event = db.relationship("Event", back_populates="saved_events")
 
-class Ticket(db.Model, SerializerMixin):
-    _tablename_ = "tickets"
-    serialize_rules = ("-event.tickets", "-order_items.ticket")
-
