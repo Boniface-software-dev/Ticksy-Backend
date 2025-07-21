@@ -35,7 +35,7 @@ class Review(db.Model, SerializerMixin):
 
 
 class User(db.Model, SerializerMixin):
-    _tablename_ = "users"
+    __tablename__ = "users"
     serialize_rules = (
         "-password",
         "-events.organizer",
@@ -60,23 +60,23 @@ class User(db.Model, SerializerMixin):
     orders = db.relationship("Order", back_populates="attendee", cascade="all, delete")
     reviews = db.relationship("Review", back_populates="attendee", cascade="all, delete")
     saved_events = db.relationship("SavedEvent", back_populates="user", cascade="all, delete")
-    logs = db.relationship("Log", back_populates="user")
+    logs = db.relationship("AuditLog", backref="user")
     reports = db.relationship("Report", back_populates="admin")
 
-    def _repr_(self):
+    def __repr__(self):
         return f"<User {self.first_name} {self.last_name}>"
 
     @validates("email")
     def validate_email(self, key, value):
         normalized = value.strip().lower()
-        reg = r"[A-Za-z][A-Za-z0-9](\.[A-Za-z0-9]+)@[A-Za-z0-9]+\.[a-z]{2,}"
+        reg = r"[A-Za-z][A-Za-z0-9]*(\.[A-Za-z0-9]+)*@[A-Za-z0-9]+\.[a-z]{2,}"
         if not re.match(reg, normalized):
             raise ValueError("Invalid email format")
         return normalized
 
 
 class Order(db.Model, SerializerMixin):
-    __tablename__="orders"
+    __tablename__ = "orders"
     serialize_rules = ("-attendee.orders", "-order_items.order")
 
     id = db.Column(db.Integer, primary_key=True)
@@ -89,7 +89,6 @@ class Order(db.Model, SerializerMixin):
     attendee_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     attendee = db.relationship("User", back_populates="orders")
     order_items = db.relationship("OrderItem", back_populates="order", cascade="all, delete")
-
 
 class OrderItem(db.Model, SerializerMixin):
     __tablename__ = "order_items"
@@ -105,7 +104,6 @@ class OrderItem(db.Model, SerializerMixin):
     ticket = db.relationship("Ticket", back_populates="order_items")
 
     event_passes = db.relationship("EventPass", back_populates="order_item", cascade="all, delete-orphan")
-
 
 class EventPass(db.Model, SerializerMixin):
     __tablename__ = "event_passes"
@@ -135,8 +133,6 @@ class Log(db.Model, SerializerMixin):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     user = db.relationship("User", back_populates="logs")
 
-
-
 class SavedEvent(db.Model, SerializerMixin):
     __tablename__ = "saved_events"
     serialize_rules = ("-user.saved_events", "-event.saved_events")
@@ -149,7 +145,6 @@ class SavedEvent(db.Model, SerializerMixin):
 
     user = db.relationship("User", back_populates="saved_events")
     event = db.relationship("Event", back_populates="saved_events")
-
 
 class Report(db.Model, SerializerMixin):
     __tablename__ = "reports"
@@ -167,7 +162,7 @@ class Report(db.Model, SerializerMixin):
     
 
 class Ticket(db.Model, SerializerMixin):
-    _tablename_ = "tickets"
+    __tablename__ = "tickets"
     serialize_rules = ("-event.tickets", "-order_items.ticket")
 
     id = db.Column(db.Integer, primary_key=True)
@@ -182,7 +177,7 @@ class Ticket(db.Model, SerializerMixin):
     order_items = db.relationship("OrderItem", back_populates="ticket")
 
 class Event(db.Model, SerializerMixin):
-    _tablename_ = "events"
+    __tablename__= "events"
     serialize_rules = (
         "-organizer.events",
         "-tickets.event",
@@ -211,3 +206,4 @@ class Event(db.Model, SerializerMixin):
     reviews = db.relationship("Review", back_populates="event", cascade="all, delete")
     saved_events = db.relationship("SavedEvent", back_populates="event", cascade="all, delete")
     reports = db.relationship("Report", back_populates="event")
+
