@@ -16,3 +16,9 @@ convention = {
 
 metadata = MetaData(naming_convention=convention)
 db = SQLAlchemy(metadata=metadata)
+
+
+
+class Order(db.Model, SerializerMixin):
+    __tablename__="orders"
+     serialize_rules = ("-attendee.orders", "-order_items.order")
