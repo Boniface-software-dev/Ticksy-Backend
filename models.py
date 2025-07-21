@@ -21,4 +21,13 @@ db = SQLAlchemy(metadata=metadata)
 
 class Order(db.Model, SerializerMixin):
     __tablename__="orders"
-     serialize_rules = ("-attendee.orders", "-order_items.order")
+    serialize_rules = ("-attendee.orders", "-order_items.order")
+
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.String, nullable=False, unique=True)
+    status = db.Column(db.String, default="pending")
+    mpesa_receipt = db.Column(db.String)
+    total_amount = db.Column(db.Float, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+
+    
