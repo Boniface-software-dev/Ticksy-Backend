@@ -132,7 +132,6 @@ class AuditLog(db.Model, SerializerMixin):
     status = db.Column(db.String(50), default="Success", nullable=False)
     ip_address = db.Column(db.String(100), nullable=True)
     extra_data = db.Column(db.JSON, nullable=True)
-
     
 
     def __repr__(self):
