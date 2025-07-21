@@ -8,7 +8,12 @@ from flask_jwt_extended import JWTManager
 from dotenv import load_dotenv
 from datetime import timedelta
 
+from models import db
+
 load_dotenv()
+
+
+app = Flask(__name__)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///development.db"  # dev only
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
