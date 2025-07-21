@@ -73,3 +73,29 @@ class AdminReports(Resource):
             r.to_dict(only=("id", "report_data", "generated_at", "event_id", "admin_id"))
             for r in reports
         ], 200
+
+class AdminAuditLogs(Resource):
+    @jwt_required()
+    def get(self):
+        admin = User.query.get(get_jwt_identity())
+        if not admin or admin.role != "admin":
+            return {"message": "Admins only."}, 403
+
+        logs = AuditLog.query.order_by(AuditLog.timestamp.desc()).limit(100).all()
+
+        log_action(
+            user_id=admin.id,
+            action="Viewed Audit Logs",
+            target_type="AuditLog",
+            target_id=None,
+            status="Success",
+            ip_address=request.remote_addr
+        )
+
+        return [
+            l.to_dict(only=(
+                "id", "user_id", "action", "target_type", "target_id",
+                "status", "ip_address", "timestamp", "extra_data"
+            )) for l in logs
+        ], 200
+   
