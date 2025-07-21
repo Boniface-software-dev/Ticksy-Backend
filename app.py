@@ -10,6 +10,7 @@ from datetime import timedelta
 
 from models import db
 from resources.auth import Signup, Login
+from resources.admin_events import PendingEvents, ApproveRejectEvent
 
 load_dotenv()
 
@@ -46,6 +47,10 @@ def missing_token(error):
 
 api.add_resource(Signup, '/signup')
 api.add_resource(Login, '/login')
+
+
+api.add_resource(PendingEvents, "/admin/pending")
+api.add_resource(ApproveRejectEvent, "/admin/approve/<int:id>")
 
 
 if __name__ == "__main__":
