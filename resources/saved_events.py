@@ -58,7 +58,7 @@ class SaveEvent(Resource):
             )
             return {"message": "An error occurred."}, 500
         
-        class MySavedEvents(Resource):
+class MySavedEvents(Resource):
     @jwt_required()
     def get(self):
         user_id = get_jwt_identity()

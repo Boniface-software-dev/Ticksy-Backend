@@ -34,6 +34,9 @@ from resources.reviews import PostReview, EventReviews
 
 from resources.profile import MyProfile, UpdateProfile
 
+
+from resources.profile_events import MyUpcomingEvents, MyPastEvents
+
 load_dotenv()
 
 
@@ -81,8 +84,7 @@ api.add_resource(AdminAuditLogs, "/admin/logs")
 
 
 
-api.add_resource(PendingEvents, "/admin/pending")
-api.add_resource(ApproveRejectEvent, "/admin/<int:id>")
+
 
 api.add_resource(SaveEvent, "/events/<int:id>/save")
 api.add_resource(MySavedEvents, "/my-saved-events")
@@ -114,6 +116,9 @@ api.add_resource(EventReviews, "/events/<int:id>/reviews")
 
 api.add_resource(MyProfile, "/profile/me")
 api.add_resource(UpdateProfile, "/profile/me")
+
+api.add_resource(MyUpcomingEvents, "/profile/my-upcoming-events")
+api.add_resource(MyPastEvents, "/profile/my-past-events")
 
 
 
