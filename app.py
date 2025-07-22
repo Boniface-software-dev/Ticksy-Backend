@@ -81,8 +81,7 @@ api.add_resource(AdminAuditLogs, "/admin/logs")
 
 
 
-api.add_resource(PendingEvents, "/admin/pending")
-api.add_resource(ApproveRejectEvent, "/admin/<int:id>")
+
 
 api.add_resource(SaveEvent, "/events/<int:id>/save")
 api.add_resource(MySavedEvents, "/my-saved-events")
