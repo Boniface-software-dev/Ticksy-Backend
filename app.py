@@ -34,7 +34,9 @@ from resources.reviews import PostReview, EventReviews
 
 from resources.profile import MyProfile, UpdateProfile
 
+
 from resources.profile_events import MyUpcomingEvents, MyPastEvents
+
 load_dotenv()
 
 
