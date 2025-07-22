@@ -5,18 +5,9 @@ import random
 import uuid
 
 with app.app_context():
-    print(" Cleaning database...")
-    EventPass.query.delete()
-    AuditLog.query.delete()
-    SavedEvent.query.delete()
-    Report.query.delete()
-    Review.query.delete()
-    OrderItem.query.delete()
-    Order.query.delete()
-    Ticket.query.delete()
-    Event.query.delete()
-    User.query.delete()
-    db.session.commit()
+    print("Dropping and recreating database")
+    db.drop_all()
+    db.create_all()
 
     print("🌱 Seeding users...")
     users = []
@@ -26,24 +17,38 @@ with app.app_context():
     users.append(User(first_name="Bob", last_name="Boss", email="bob@admin.com", phone="0700000002", password=bcrypt.generate_password_hash("admin123").decode('utf-8'), role="admin"))
 
     # Organizers
-    for i in range(1, 4):
+    organizers = [
+        {"first_name": "Wanjiru", "last_name": "Mwangi", "email": "wanjiru@events.co.ke", "phone": "0701223344"},
+        {"first_name": "Brian", "last_name": "Otieno", "email": "brian@events.co.ke", "phone": "0711223344"},
+        {"first_name": "Njeri", "last_name": "Kariuki", "email": "njeri@events.co.ke", "phone": "0721223344"},
+    ]
+
+    for org in organizers:
         users.append(User(
-            first_name=f"Organizer{i}",
-            last_name="Org",
-            email=f"org{i}@events.com",
-            phone=f"070100000{i}",
-            password=bcrypt.generate_password_hash("org123").decode('utf-8'),
+            first_name=org["first_name"],
+            last_name=org["last_name"],
+            email=org["email"],
+            phone=org["phone"],
+            password=bcrypt.generate_password_hash("organizer123").decode('utf-8'),
             role="organizer"
         ))
 
     # Attendees
-    for i in range(1, 6):
+    attendees = [
+        {"first_name": "Kevin", "last_name": "Odhiambo", "email": "kevin@gmail.com", "phone": "0711221122"},
+        {"first_name": "Grace", "last_name": "Wambui", "email": "grace@gmail.com", "phone": "0702334455"},
+        {"first_name": "Dennis", "last_name": "Kiptoo", "email": "dennis@gmail.com", "phone": "0711445566"},
+        {"first_name": "Sharon", "last_name": "Achieng", "email": "sharon@gmail.com", "phone": "0722334455"},
+        {"first_name": "Abdi", "last_name": "Hussein", "email": "abdi@gmail.com", "phone": "0701443344"},
+    ]
+
+    for att in attendees:
         users.append(User(
-            first_name=f"Attendee{i}",
-            last_name="User",
-            email=f"attendee{i}@mail.com",
-            phone=f"071000000{i}",
-            password=bcrypt.generate_password_hash("pass123").decode('utf-8'),
+            first_name=att["first_name"],
+            last_name=att["last_name"],
+            email=att["email"],
+            phone=att["phone"],
+            password=bcrypt.generate_password_hash("attendee123").decode('utf-8'),
             role="attendee"
         ))
 
@@ -51,22 +56,66 @@ with app.app_context():
     db.session.commit()
 
     print("🌱 Seeding events & tickets...")
+
+    sample_events = [
+        {
+            "title": "Blankets & Wine Nairobi",
+            "desc": "A premier music and arts experience in Nairobi.",
+            "image": "https://media.istockphoto.com/id/638492408/vector/craft-beer-festival-poster-design-template.jpg?s=612x612&w=0&k=20&c=GDHheEEP5gm4MHokMlbmrKMuEiXUtmFQwZUc-JBpAU0=",
+            "location": "Loresho Gardens",
+            "category": "Music",
+            "tags": "music,live,fun"
+        },
+        {
+            "title": "Koroga Festival",
+            "desc": "Celebrating African music, food and culture.",
+            "image": "https://media.istockphoto.com/id/1382746448/vector/covid19-new-variant-web-banner-template-and-video-thumbnail-editable-promotion-banner-design.jpg?s=1024x1024&w=is&k=20&c=7AspM_7IK6tXtdvMQAtXLF7K2shPlr6OFnUjqLNSdsU=",
+            "location": "Carnivore Grounds",
+            "category": "Culture",
+            "tags": "afrobeat,food,festival"
+        },
+        {
+            "title": "Nairobi Restaurant Week",
+            "desc": "Taste the best from top Nairobi restaurants.",
+            "image": "https://media.istockphoto.com/id/1188510295/vector/abstract-vector-colorful-gradient-landing-page-template.jpg?s=612x612&w=0&k=20&c=UhbIpbiUJ1RV9c9w8RqBv5MDShCbWvN4o29BreCMaIw=",
+            "location": "Various Locations",
+            "category": "Food",
+            "tags": "foodie,restaurants,cuisine"
+        },
+        {
+            "title": "Lake Naivasha Hike & Camp",
+            "desc": "Join us for an exciting adventure and bonfire night.",
+            "image": "https://media.istockphoto.com/id/1364100879/vector/se-strong-with-our-training-social-media-post-design-template-use-green-gradient-colors-on.jpg?s=612x612&w=0&k=20&c=Rv9WcfBAmSgNgiWaXwPpCMSs5Px4X6jecx7RluRjSZ4=",
+            "location": "Naivasha",
+            "category": "Adventure",
+            "tags": "hiking,camping,nature"
+        },
+        {
+            "title": "Techstars Startup Weekend Nairobi",
+            "desc": "Bring your startup idea to life in 54 hours.",
+            "image": "https://media.istockphoto.com/id/1364100879/vector/se-strong-with-our-training-social-media-post-design-template-use-green-gradient-colors-on.jpg?s=612x612&w=0&k=20&c=Rv9WcfBAmSgNgiWaXwPpCMSs5Px4X6jecx7RluRjSZ4=",
+            "location": "iHub, Nairobi",
+            "category": "Tech",
+            "tags": "startup,networking,pitch"
+        },
+    ]
+
     events = []
     tickets = []
 
-    for i in range(1, 6):
-        organizer = users[2 + (i % 3)]
+    for idx, ev in enumerate(sample_events):
+        organizer = users[2 + (idx % 3)]
         event = Event(
-            title=f"Event {i}",
-            description=f"This is the description for Event {i}.",
-            location="Nairobi",
-            start_time=datetime.now() + timedelta(days=i),
-            end_time=datetime.now() + timedelta(days=i, hours=3),
-            category="Music",
-            tags="live,concert",
-            status=random.choice(["approved", "pending", "rejected"]),
-            is_approved=True if i % 2 == 0 else False,
-            image_url=f"https://example.com/event{i}.jpg",
+            title=ev["title"],
+            description=ev["desc"],
+            location=ev["location"],
+            start_time=datetime.now() + timedelta(days=idx+1),
+            end_time=datetime.now() + timedelta(days=idx+1, hours=4),
+            category=ev["category"],
+            tags=ev["tags"],
+            status="approved",
+            is_approved=True,
+            image_url=ev["image"],
             organizer_id=organizer.id,
             attendee_count=0
         )
@@ -74,24 +123,18 @@ with app.app_context():
         db.session.flush()
         events.append(event)
 
-        for j in range(1, 3):
-            t = Ticket(
-                type=f"Tier {j}",
-                price=1000 + j * 200,
-                quantity=100,
-                sold=random.randint(10, 50),
-                event_id=event.id
-            )
-            db.session.add(t)
-            tickets.append(t)
+        tickets.append(Ticket(type="Regular", price=1500.00, quantity=150, sold=40, event_id=event.id))
+        tickets.append(Ticket(type="VIP", price=3000.00, quantity=50, sold=10, event_id=event.id))
 
+    db.session.add_all(tickets)
     db.session.commit()
 
-    print("🌱 Seeding orders, order items, event passes, reviews...")
+    print("🌱 Seeding orders, order items, passes, reviews...")
+
     for attendee in users[-5:]:
-        for i in range(2):
+        for _ in range(2):
             ticket = random.choice(tickets)
-            quantity = random.randint(1, 3)
+            quantity = random.randint(1, 2)
             order = Order(
                 order_id=str(uuid.uuid4()),
                 attendee_id=attendee.id,
@@ -106,9 +149,8 @@ with app.app_context():
             db.session.add(item)
             db.session.flush()
 
-            # Seed EventPasses per quantity
             for q in range(quantity):
-                event_pass = EventPass(
+                db.session.add(EventPass(
                     ticket_code=str(uuid.uuid4())[:8].upper(),
                     attendee_first_name=f"Guest{q+1}",
                     attendee_last_name=attendee.last_name,
@@ -116,48 +158,43 @@ with app.app_context():
                     attendee_phone=f"07{random.randint(10000000,99999999)}",
                     att_status=random.choice([True, False]),
                     order_item_id=item.id
-                )
-                db.session.add(event_pass)
+                ))
 
             ticket.event.attendee_count += quantity
 
             if random.choice([True, False]):
-                review = Review(
+                db.session.add(Review(
                     rating=random.randint(3, 5),
-                    comment=random.choice(["Amazing!", "Enjoyed it!", "Could be better."]),
+                    comment=random.choice(["Loved it!", "Great experience!", "Would attend again."]),
                     attendee_id=attendee.id,
                     event_id=ticket.event.id
-                )
-                db.session.add(review)
+                ))
 
     db.session.commit()
 
     print("🌱 Seeding saved events...")
     for attendee in users[-5:]:
-        saved = SavedEvent(user_id=attendee.id, event_id=random.choice(events).id)
-        db.session.add(saved)
+        db.session.add(SavedEvent(user_id=attendee.id, event_id=random.choice(events).id))
 
     db.session.commit()
 
-    print("🌱 Seeding reports & audit logs...")
+    print("🌱 Seeding reports & logs...")
     for admin in users[:2]:
-        r = Report(
-            report_data="Sample analytics report for system performance.",
+        db.session.add(Report(
+            report_data="Analytics for July Events.",
             admin_id=admin.id,
             event_id=random.choice(events).id
-        )
-        db.session.add(r)
+        ))
 
-        log = AuditLog(
-            action="Seeded report and approved event",
+        db.session.add(AuditLog(
+            action="Seeded initial test events",
             user_id=admin.id,
             target_type="Event",
             target_id=random.choice(events).id,
             status="Success",
             ip_address="127.0.0.1",
-            extra_data={"source": "seed_script"}
-        )
-        db.session.add(log)
+            extra_data={"note": "Initial seed"}
+        ))
 
     db.session.commit()
-    print("🌱 Seeding complete!")
+    print("Seeding complete")
