@@ -75,3 +75,6 @@ class MySavedEvents(Resource):
                     "event.status", "event.image_url"
                 )) for s in saved
             ], 200
+
+        
+
