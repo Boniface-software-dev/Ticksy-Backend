@@ -42,9 +42,9 @@ load_dotenv()
 
 app = Flask(__name__)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///development.db"  # dev only
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv('DATABASE_URL')
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["JWT_SECRET_KEY"] = "your_jwt_secret"  # temp secret
+app.config["JWT_SECRET_KEY"] = "your_jwt_secret"  
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
 
 
