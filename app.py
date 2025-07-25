@@ -49,7 +49,9 @@ db.init_app(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 migrate = Migrate(app, db)
-CORS(app)
+CORS(app, supports_credentials=True, resources={
+    r"/*": {"origins": ["http://127.0.0.1:5173", "http://localhost:5173", "http://ticksy-frontend.vercel.app"]}
+})
 api = Api(app)
 
 @app.route("/")
