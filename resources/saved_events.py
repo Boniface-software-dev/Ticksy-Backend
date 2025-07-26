@@ -27,7 +27,9 @@ class SaveEvent(Resource):
                 action = "Unsave"
                 message = "Event removed from saved list."
             else:
-                saved = SavedEvent(user_id=user_id, event_id=id)
+                saved = SavedEvent()
+                saved.user_id = user_id
+                saved.event_id = id
                 db.session.add(saved)
                 action = "Save"
                 message = "Event saved successfully."
@@ -57,7 +59,7 @@ class SaveEvent(Resource):
                 extra_data=str(e)
             )
             return {"message": "An error occurred."}, 500
-    
+        
 class MySavedEvents(Resource):
     @jwt_required()
     def get(self):
