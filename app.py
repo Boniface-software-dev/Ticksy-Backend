@@ -35,8 +35,7 @@ from resources.admin_analytics import (
 
 from resources.attendee_profile import UpcomingAttendeeEvents, PastAttendeeEvents
 
-
-from resources.attendees import EventAttendees
+from resources.attendees import EventAttendees,CheckInAttendee
 
 load_dotenv()
 
@@ -147,6 +146,7 @@ api.add_resource(UpcomingAttendeeEvents, "/attendee/upcoming-events")
 api.add_resource(PastAttendeeEvents, "/attendee/past-events")
 
 api.add_resource(EventAttendees, '/organizer/events/<int:event_id>/attendees')
+api.add_resource(CheckInAttendee, "/organizer/checkin/<int:pass_id>")
 
 
 

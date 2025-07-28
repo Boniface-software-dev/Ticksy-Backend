@@ -48,3 +48,36 @@ class EventAttendees(Resource):
         )
 
         return {"attendees": attendees}, 200
+
+class CheckInAttendee(Resource):
+    @jwt_required()
+    def patch(self, pass_id):
+        user_id = get_jwt_identity()
+        organizer = User.query.get(user_id)
+
+        if not organizer or organizer.role != "organizer":
+            return {"message": "Only organizers can check in attendees."}, 403
+
+        event_pass = EventPass.query.get(pass_id)
+        if not event_pass:
+            return {"message": "Event pass not found."}, 404
+
+        # Ensure the organizer owns the event
+        ticket = event_pass.order_item.ticket
+        if not ticket or ticket.event.organizer_id != organizer.id:
+            return {"message": "You can only check-in attendees for your own events."}, 403
+
+        event_pass.att_status = True
+        db.session.commit()
+
+        log_action(
+            user_id=user_id,
+            action="Checked-in Attendee",
+            target_type="EventPass",
+            target_id=pass_id,
+            status="Success",
+            ip_address=request.remote_addr,
+            extra_data={"ticket_code": event_pass.ticket_code}
+        )
+
+        return {"message": "Attendee checked in successfully."}, 200
