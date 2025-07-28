@@ -46,6 +46,8 @@ from resources.admin_analytics import (
 
 from resources.attendee_profile import UpcomingAttendeeEvents, PastAttendeeEvents
 
+from resources.attendees import EventAttendees
+
 load_dotenv()
 
 
@@ -138,6 +140,8 @@ api.add_resource(TopEventsByRevenue, '/admin/analytics/top-events-by-revenue')
 
 api.add_resource(UpcomingAttendeeEvents, "/attendee/upcoming-events")
 api.add_resource(PastAttendeeEvents, "/attendee/past-events")
+
+api.add_resource(EventAttendees, '/organizer/events/<int:event_id>/attendees')
 
 
 if __name__ == "__main__":
