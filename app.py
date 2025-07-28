@@ -22,7 +22,19 @@ from resources.tickets import CreateTicket, EventTickets
 from resources.reviews import PostReview, EventReviews
 from resources.profile import MyProfile, UpdateProfile
 from resources.profile_events import MyUpcomingEvents, MyPastEvents
+
 from models import User
+
+from resources.admin_analytics import (
+    AdminSummary,
+    TicketSalesTrends,
+    RevenueByTicketType,
+    TopEventTypes,
+    TopEventsByRevenue
+)
+
+from resources.attendee_profile import UpcomingAttendeeEvents, PastAttendeeEvents
+
 
 load_dotenv()
 
@@ -117,6 +129,19 @@ api.add_resource(MyProfile, "/profile/me")
 api.add_resource(UpdateProfile, "/profile/me")
 api.add_resource(MyUpcomingEvents, "/profile/my-upcoming-events")
 api.add_resource(MyPastEvents, "/profile/my-past-events")
+
+
+
+api.add_resource(AdminSummary, '/admin/analytics/summary')
+api.add_resource(TicketSalesTrends, '/admin/analytics/ticket-sales-trends')
+api.add_resource(RevenueByTicketType, '/admin/analytics/revenue-by-ticket-type')
+api.add_resource(TopEventTypes, '/admin/analytics/top-event-types')
+api.add_resource(TopEventsByRevenue, '/admin/analytics/top-events-by-revenue')
+
+api.add_resource(UpcomingAttendeeEvents, "/attendee/upcoming-events")
+api.add_resource(PastAttendeeEvents, "/attendee/past-events")
+
+
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
