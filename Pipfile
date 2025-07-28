@@ -7,7 +7,6 @@ name = "pypi"
 flask = "==3.0.3"
 flask-sqlalchemy = "==3.1.1"
 sqlalchemy-serializer = "==1.4.12"
-flask-cors = "==5.0.0"
 flask-bcrypt = "==1.0.1"
 flask-jwt-extended = "==4.6.0"
 flask-migrate = "*"
@@ -16,6 +15,8 @@ colorama = "*"
 psycopg2-binary = "*"
 python-dotenv = "*"
 gunicorn = "*"
+flask-cors = "*"
+faker = "*"
 
 [dev-packages]
 

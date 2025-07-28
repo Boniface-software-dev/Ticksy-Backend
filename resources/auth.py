@@ -90,7 +90,7 @@ class Login(Resource):
         user = User.query.filter_by(email=email).first()
 
         if user and bcrypt.checkpw(password, user.password.encode('utf-8')):
-            token = create_access_token(identity=user.id, expires_delta=timedelta(days=1))
+            token = create_access_token(identity=str(user.id), expires_delta=timedelta(days=1))
 
             log_action(
                 user_id=user.id,

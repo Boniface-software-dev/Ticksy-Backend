@@ -50,8 +50,10 @@ class SingleEvent(Resource):
             "id", "title", "description", "location",
             "start_time", "end_time", "category", "tags", "image_url",
             "organizer.id", "organizer.first_name", "organizer.last_name",
-            "tickets.id", "tickets.type", "tickets.price"
+            "tickets.id", "tickets.type", "tickets.price", 
+            "tickets.quantity", "tickets.sold" 
         )), 200
+
 
 
 
@@ -189,11 +191,28 @@ class DeleteEvent(Resource):
 class MyEvents(Resource):
     @jwt_required()
     def get(self):
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         events = Event.query.filter_by(organizer_id=user_id).order_by(Event.created_at.desc()).all()
-        return [e.to_dict(only=(
-            "id", "title", "description", "location",
-            "start_time", "end_time", "category", "tags", "image_url", "is_approved"
 
-        )) for e in events], 200
+        serialized = []
+        for e in events:
+            event_dict = e.to_dict(only=(
+                "id", "title", "description", "location",
+                "start_time", "end_time", "category", "tags", "image_url", "status"
+            ))
+
+            # Convert datetime fields to ISO format
+            event_dict["start_time"] = e.start_time.isoformat() if e.start_time else None
+            event_dict["end_time"] = e.end_time.isoformat() if e.end_time else None
+
+            # Add tickets info
+            event_dict["tickets"] = [
+                ticket.to_dict(only=("id", "type", "price", "quantity", "sold"))
+                for ticket in e.tickets
+            ]
+
+            serialized.append(event_dict)
+
+        return serialized, 200
+
 
