@@ -6,25 +6,15 @@ from utils.logger import log_action
 from datetime import datetime
 
 
-
-
 event_parser = reqparse.RequestParser()
 event_parser.add_argument("title", type=str, required=True)
 event_parser.add_argument("description", type=str, required=True)
 event_parser.add_argument("location", type=str, required=True)
 event_parser.add_argument("start_time", type=str, required=True)
 event_parser.add_argument("end_time", type=str, required=True)
-
-event_parser.add_argument("category", type=str, required=False)
-event_parser.add_argument("tags", type=str, required=False)
-event_parser.add_argument("image_url", type=str, required=False)
-
-
-
 event_parser.add_argument("category", type=str, required=True)
 event_parser.add_argument("tags", type=str, required=True)
 event_parser.add_argument("image_url", type=str, required=True)
-
 
 
 class EventList(Resource):
@@ -35,9 +25,6 @@ class EventList(Resource):
             "start_time", "end_time", "category", "tags", "image_url",
             "organizer.id", "organizer.first_name", "organizer.last_name"
         )) for e in events], 200
-
-
-
 
 
 class SingleEvent(Resource):
@@ -52,9 +39,6 @@ class SingleEvent(Resource):
             "organizer.id", "organizer.first_name", "organizer.last_name",
             "tickets.id", "tickets.type", "tickets.price"
         )), 200
-
-
-
 
 
 class CreateEvent(Resource):
@@ -74,9 +58,9 @@ class CreateEvent(Resource):
                 location=data["location"],
                 start_time=datetime.fromisoformat(data["start_time"]),
                 end_time=datetime.fromisoformat(data["end_time"]),
-                category=data.get("category"),
-                tags=data.get("tags"),
-                image_url=data.get("image_url"),
+                category=data["category"],
+                tags=data["tags"],
+                image_url=data["image_url"],
                 organizer_id=user_id
             )
             db.session.add(event)
@@ -107,10 +91,6 @@ class CreateEvent(Resource):
             return {"message": "Event creation failed."}, 500
 
 
-
-
-
-
 class UpdateEvent(Resource):
     @jwt_required()
     def put(self, id):
@@ -125,6 +105,7 @@ class UpdateEvent(Resource):
             for field in data:
                 if data[field]:
                     setattr(event, field, data[field])
+
             event.start_time = datetime.fromisoformat(data["start_time"])
             event.end_time = datetime.fromisoformat(data["end_time"])
 
@@ -154,7 +135,6 @@ class UpdateEvent(Resource):
             return {"message": "Event update failed."}, 500
 
 
-
 class DeleteEvent(Resource):
     @jwt_required()
     def delete(self, id):
@@ -182,10 +162,6 @@ class DeleteEvent(Resource):
         return {"message": "Event deleted successfully."}, 200
 
 
-
-
-
-
 class MyEvents(Resource):
     @jwt_required()
     def get(self):
@@ -194,6 +170,4 @@ class MyEvents(Resource):
         return [e.to_dict(only=(
             "id", "title", "description", "location",
             "start_time", "end_time", "category", "tags", "image_url", "is_approved"
-
         )) for e in events], 200
-
