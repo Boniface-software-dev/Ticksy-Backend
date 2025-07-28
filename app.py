@@ -22,6 +22,8 @@ from resources.tickets import CreateTicket, EventTickets
 from resources.reviews import PostReview, EventReviews
 from resources.profile import MyProfile, UpdateProfile
 from resources.profile_events import MyUpcomingEvents, MyPastEvents
+from resources.profile_events import PastEventDetail
+
 
 from models import User
 
@@ -133,6 +135,8 @@ api.add_resource(MyProfile, "/profile/me")
 api.add_resource(UpdateProfile, "/profile/me")
 api.add_resource(MyUpcomingEvents, "/profile/my-upcoming-events")
 api.add_resource(MyPastEvents, "/profile/my-past-events")
+api.add_resource(PastEventDetail, "/profile/my-past-events/<int:event_id>")
+
 
 
 
