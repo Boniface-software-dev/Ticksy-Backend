@@ -152,7 +152,5 @@ api.add_resource(CheckOutAttendee, "/organizer/checkout/<int:pass_id>")
 
 
 
-
-
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
