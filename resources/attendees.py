@@ -3,6 +3,11 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, Event, EventPass, OrderItem, Ticket, User
 from utils.logger import log_action
 
+from flask_restful import Resource
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask import request
+from models import db, User, EventPass, Ticket, Event, OrderItem
+
 class EventAttendees(Resource):
     @jwt_required()
     def get(self, event_id):
@@ -10,13 +15,11 @@ class EventAttendees(Resource):
         organizer = User.query.get(user_id)
 
         if not organizer or organizer.role != "organizer":
-            return {"message": "Access denied"}, 403
+            return {"message": "Only organizers can view attendees."}, 403
 
+        # Ensure the organizer owns the event
         event = Event.query.get(event_id)
-        if not event:
-            return {"message": "Event not found"}, 404
-
-        if event.organizer_id != organizer.id:
+        if not event or event.organizer_id != organizer.id:
             return {"message": "You can only view attendees for your own events."}, 403
 
         passes = (
@@ -27,27 +30,21 @@ class EventAttendees(Resource):
             .all()
         )
 
-        attendees = [
-            {
-                "ticket_code": ep.ticket_code,
-                "first_name": ep.attendee_first_name,
-                "last_name": ep.attendee_last_name,
-                "email": ep.attendee_email,
-                "phone": ep.attendee_phone,
-                "checked_in": ep.att_status
-            }
-            for ep in passes
-        ]
-
-        log_action(
-            user_id=user_id,
-            action="Viewed Attendees",
-            target_type="Event",
-            target_id=event_id,
-            status="Success"
-        )
+        attendees = []
+        for p in passes:
+            attendees.append({
+                "id": p.id,
+                "ticket_code": p.ticket_code,
+                "attendee_first_name": p.attendee_first_name,
+                "attendee_last_name": p.attendee_last_name,
+                "attendee_email": p.attendee_email,
+                "attendee_phone": p.attendee_phone,
+                "checked_in": p.att_status,
+                "ticket_type": p.order_item.ticket.type if p.order_item and p.order_item.ticket else None,
+            })
 
         return {"attendees": attendees}, 200
+
 
 class CheckInAttendee(Resource):
     @jwt_required()
@@ -81,3 +78,38 @@ class CheckInAttendee(Resource):
         )
 
         return {"message": "Attendee checked in successfully."}, 200
+    
+
+class CheckOutAttendee(Resource):
+    @jwt_required()
+    def patch(self, pass_id):
+        user_id = get_jwt_identity()
+        organizer = User.query.get(user_id)
+
+        if not organizer or organizer.role != "organizer":
+            return {"message": "Only organizers can check out attendees."}, 403
+
+        event_pass = EventPass.query.get(pass_id)
+        if not event_pass:
+            return {"message": "Event pass not found."}, 404
+
+        # Verify event ownership
+        ticket = event_pass.order_item.ticket
+        if not ticket or ticket.event.organizer_id != organizer.id:
+            return {"message": "Unauthorized access to this event pass."}, 403
+
+        # Update attendance
+        event_pass.att_status = False
+        db.session.commit()
+
+        log_action(
+            user_id=user_id,
+            action="Checked-out Attendee",
+            target_type="EventPass",
+            target_id=pass_id,
+            status="Success",
+            ip_address=request.remote_addr,
+            extra_data={"ticket_code": event_pass.ticket_code}
+        )
+
+        return {"message": "Attendee checked out successfully."}, 200
