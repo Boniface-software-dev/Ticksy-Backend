@@ -98,6 +98,64 @@ with app.app_context():
             "category": "Tech",
             "tags": "startup,networking,pitch"
         },
+        {
+            "title": "Art in the Park",
+            "desc": "Explore contemporary art from local artists.",
+            "image": "https://media.istockphoto.com/id/1364100879/vector/se-strong-with-our-training-social-media-post-design-template-use-green-gradient-colors-on.jpg?s=612x612&w=0&k=20&c=Rv9WcfBAmSgNgiWaXwPpCMSs5Px4X6jecx7RluRjSZ4=",
+            "location": "Uhuru Park",
+            "category": "Art",
+            "tags": "art,exhibition,local"
+        },
+        {
+            "title": "Nairobi Fashion Week",
+            "desc": "Showcasing the best of African fashion.",
+            "image": "https://media.istockphoto.com/id/1364100879/vector/se-strong-with-our-training-social-media-post-design-template-use-green-gradient-colors-on.jpg?s=612x612&w=0&k=20&c=Rv9WcfBAmSgNgiWaXwPpCMSs5Px4X6jecx7RluRjSZ4=",
+            "location": "Sarova Panafric Hotel",
+            "category": "Fashion",
+            "tags": "fashion,design,style"
+        },
+        {
+            "title": "Nairobi Book Fair",
+            "desc": "A celebration of literature and authors.",
+            "image": "https://media.istockphoto.com/id/1364100879/vector/se-strong-with-our-training-social-media-post-design-template-use-green-gradient-colors-on.jpg?s=612x612&w=0&k=20&c=Rv9WcfBAmSgNgiWaXwPpCMSs5Px4X6jecx7RluRjSZ4=",
+            "location": "Kenyatta International Convention Centre",
+            "category": "Literature",
+            "tags": "books,authors,reading"
+        },
+        {
+            "title": "Nairobi Film Festival",
+            "desc": "Screening the best of local and international films.",
+            "image": "https://media.istockphoto.com/id/1364100879/vector/se-strong-with-our-training-social-media-post-design-template-use-green-gradient-colors-on.jpg?s=612x612&w=0&k=20&c=Rv9WcfBAmSgNgiWaXwPpCMSs5Px4X6jecx7RluRjSZ4=",
+            "location": "Prestige Cinema",
+            "category": "Film",
+            "tags": "movies,screening,cinema"
+        },
+        {
+            "title": "Nairobi Tech Expo",
+            "desc": "Showcasing the latest in technology and innovation.",
+            "image": "https://media.istockphoto.com/id/1364100879/vector/se-strong-with-our-training-social-media-post-design-template-use-green-gradient-colors-on.jpg?s=612x612&w=0&k=20&c=Rv9WcfBAmSgNgiWaXwPpCMSs5Px4X6jecx7RluRjSZ4=",
+            "location": "Kenyatta International Convention Centre",
+            "category": "Tech",
+            "tags": "technology,innovation,expo"
+        },
+        {
+            "title": "Nairobi Jazz Festival",
+            "desc": "Celebrating jazz music with top local and international artists.",
+            "image": "https://media.istockphoto.com/id/1364100879/vector/se-strong-with-our-training-social-media-post-design-template-use-green-gradient-colors-on.jpg?s=612x612&w=0&k=20&c=Rv9WcfBAmSgNgiWaXwPpCMSs5Px4X6jecx7RluRjSZ4=",
+            "location": "Carnivore Grounds",
+            "category": "Music",
+            "tags": "jazz,live,concert"
+        },
+        {
+            "title": "Nairobi Photography Exhibition",
+            "desc": "Showcasing stunning photography from local artists.",
+            "image": "https://media.istockphoto.com/id/1364100879/vector/se-strong-with-our-training-social-media-post-design-template-use-green-gradient-colors-on.jpg?s=612x612&w=0&k=20&c=Rv9WcfBAmSgNgiWaXwPpCMSs5Px4X6jecx7RluRjSZ4=",
+            "location": "Alliance Française",
+            "category": "Art",
+            "tags": "photography,exhibition,art"
+        } 
+
+        
     ]
 
     events = []
