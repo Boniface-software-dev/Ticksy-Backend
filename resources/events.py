@@ -4,6 +4,8 @@ from flask import request
 from models import Event, User, db
 from utils.logger import log_action
 from datetime import datetime
+import cloudinary.uploader
+from werkzeug.utils import secure_filename
 
 
 
@@ -56,31 +58,55 @@ class SingleEvent(Resource):
 
 
 
-
-
-
 class CreateEvent(Resource):
     @jwt_required()
     def post(self):
-        data = event_parser.parse_args()
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         organizer = User.query.get(user_id)
 
         if not organizer or organizer.role != "organizer":
             return {"message": "Only organizers can create events."}, 403
 
         try:
+            # Get form data
+            title = request.form.get("title")
+            description = request.form.get("description")
+            location = request.form.get("location")
+            start_time = request.form.get("start_time")
+            end_time = request.form.get("end_time")
+            category = request.form.get("category")
+            tags = request.form.get("tags")
+
+            # Validate required fields
+            if not all([title, description, location, start_time, end_time]):
+                return {"message": "Missing required fields."}, 400
+
+            # Upload image if provided
+            image_url = None
+            image = request.files.get("image")
+            if image:
+                upload_result = cloudinary.uploader.upload(
+                    image,
+                    folder="events",  # optional folder
+                    use_filename=True,
+                    unique_filename=False
+                )
+                image_url = upload_result.get("secure_url")
+
+            # Create event with status "pending"
             event = Event(
-                title=data["title"],
-                description=data["description"],
-                location=data["location"],
-                start_time=datetime.fromisoformat(data["start_time"]),
-                end_time=datetime.fromisoformat(data["end_time"]),
-                category=data.get("category"),
-                tags=data.get("tags"),
-                image_url=data.get("image_url"),
-                organizer_id=user_id
+                title=title,
+                description=description,
+                location=location,
+                start_time=datetime.fromisoformat(start_time),
+                end_time=datetime.fromisoformat(end_time),
+                category=category,
+                tags=tags,
+                image_url=image_url,
+                organizer_id=user_id,
+                status="pending"
             )
+
             db.session.add(event)
             db.session.commit()
 
@@ -106,9 +132,7 @@ class CreateEvent(Resource):
                 ip_address=request.remote_addr,
                 extra_data=str(e)
             )
-            return {"message": "Event creation failed."}, 500
-
-
+            return {"message": "Event creation failed.", "error": str(e)}, 500
 
 
 
@@ -116,19 +140,41 @@ class CreateEvent(Resource):
 class UpdateEvent(Resource):
     @jwt_required()
     def put(self, id):
-        data = event_parser.parse_args()
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         event = Event.query.get(id)
 
         if not event or event.organizer_id != user_id:
             return {"message": "Event not found or unauthorized."}, 403
 
         try:
-            for field in data:
-                if data[field]:
+            # Parse form data (including file)
+            data = request.form.to_dict()
+            image_file = request.files.get('image')  # Get image if uploaded
+
+            # Update event fields
+            for field in ['title', 'description', 'location', 'category', 'tags']:
+                if field in data and data[field].strip():
                     setattr(event, field, data[field])
-            event.start_time = datetime.fromisoformat(data["start_time"])
-            event.end_time = datetime.fromisoformat(data["end_time"])
+
+            if 'start_time' in data:
+                event.start_time = datetime.fromisoformat(data["start_time"])
+
+            if 'end_time' in data:
+                event.end_time = datetime.fromisoformat(data["end_time"])
+
+            # Handle optional image upload
+            if image_file and image_file.filename != "":
+                filename = secure_filename(image_file.filename)
+                result = cloudinary.uploader.upload(
+                    image_file,
+                    folder="events",
+                    use_filename=True,
+                    unique_filename=False,
+                    resource_type="image"
+                )
+                event.image_url = result['secure_url']
+
+            event.status = "pending"
 
             db.session.commit()
 
@@ -154,7 +200,6 @@ class UpdateEvent(Resource):
                 extra_data=str(e)
             )
             return {"message": "Event update failed."}, 500
-
 
 
 class DeleteEvent(Resource):

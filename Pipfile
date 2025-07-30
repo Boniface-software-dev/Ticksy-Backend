@@ -17,6 +17,7 @@ python-dotenv = "*"
 gunicorn = "*"
 flask-cors = "*"
 faker = "*"
+cloudinary = "*"
 
 [dev-packages]
 

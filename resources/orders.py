@@ -10,7 +10,7 @@ from datetime import datetime
 order_parser = reqparse.RequestParser()
 order_parser.add_argument("ticket_id", type=int, required=True)
 order_parser.add_argument("quantity", type=int, required=True)
-
+order_parser.add_argument("attendees", type=list, location="json", required=True)
 
 class CreateOrder(Resource):
     @jwt_required()
@@ -26,6 +26,9 @@ class CreateOrder(Resource):
         if not ticket or ticket.quantity - ticket.sold < data["quantity"]:
             return {"message": "Not enough tickets available."}, 400
 
+        if len(data["attendees"]) != data["quantity"]:
+            return {"message": "Mismatch between quantity and attendee details."}, 400
+
         try:
             total = ticket.price * data["quantity"]
             order = Order(
@@ -35,7 +38,7 @@ class CreateOrder(Resource):
                 created_at=datetime.utcnow()
             )
             db.session.add(order)
-            db.session.flush() 
+            db.session.flush()
 
             order_item = OrderItem(
                 order_id=order.id,
@@ -44,17 +47,15 @@ class CreateOrder(Resource):
             )
             db.session.add(order_item)
 
-          
             ticket.sold += data["quantity"]
 
-            
-            for _ in range(data["quantity"]):
+            for att in data["attendees"]:
                 ep = EventPass(
-                    ticket_code=str(uuid.uuid4()),
-                    attendee_first_name=attendee.first_name,
-                    attendee_last_name=attendee.last_name,
-                    attendee_email=attendee.email,
-                    attendee_phone=attendee.phone,
+                    ticket_code=str(uuid.uuid4())[:8].upper(),
+                    attendee_first_name=att["first_name"],
+                    attendee_last_name=att["last_name"],
+                    attendee_email=att["email"],
+                    attendee_phone=att["phone"],
                     order_item=order_item
                 )
                 db.session.add(ep)

@@ -185,14 +185,15 @@ with app.app_context():
 
     print("🌱 Seeding orders, passes, reviews...")
 
-    for attendee in users[5:]:
-        for _ in range(random.randint(2, 4)):
-            ticket = random.choice(tickets)
-            event = next((e for e in approved_events_with_tickets if e.id == ticket.event_id), None)
-            if not event:
-                continue
+    attendees_only = users[5:]
 
-            quantity = random.randint(1, 4)
+    for ticket in tickets:
+        sold = ticket.sold
+        remaining = sold
+        while remaining > 0:
+            attendee = random.choice(attendees_only)
+            quantity = min(remaining, random.randint(1, 4))
+
             order = Order(
                 order_id=str(uuid.uuid4()),
                 attendee_id=attendee.id,
@@ -203,8 +204,12 @@ with app.app_context():
             db.session.add(order)
             db.session.flush()
 
-            item = OrderItem(order_id=order.id, ticket_id=ticket.id, quantity=quantity)
-            db.session.add(item)
+            order_item = OrderItem(
+                order_id=order.id,
+                ticket_id=ticket.id,
+                quantity=quantity
+            )
+            db.session.add(order_item)
             db.session.flush()
 
             for _ in range(quantity):
@@ -215,12 +220,14 @@ with app.app_context():
                     attendee_email=attendee.email,
                     attendee_phone=attendee.phone,
                     att_status=random.choice([True, False]),
-                    order_item_id=item.id
+                    order_item_id=order_item.id
                 ))
 
+            # Update the related event's attendee_count
+            event = ticket.event
             event.attendee_count += quantity
 
-            # Add review only if event is approved and in past
+            # Add review only if event is in the past
             if event.start_time < datetime.now():
                 db.session.add(Review(
                     rating=random.randint(3, 5),
@@ -229,11 +236,13 @@ with app.app_context():
                     event_id=event.id
                 ))
 
+            remaining -= quantity
+
     db.session.commit()
 
     print("🌱 Seeding saved events & reports...")
 
-    for attendee in users[5:]:
+    for attendee in attendees_only:
         for _ in range(random.randint(1, 4)):
             db.session.add(SavedEvent(
                 user_id=attendee.id,
