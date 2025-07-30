@@ -148,3 +148,68 @@ class PastEventDetail(Resource):
             "total_amount": total_amount,
             "review": review_data
         }, 200
+class UpcomingEventDetail(Resource):
+    @jwt_required()
+    def get(self, event_id):
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+
+        if not user or user.role != "attendee":
+            return {"message": "Only attendees can access this."}, 403
+
+        event = Event.query.get(event_id)
+
+        if not event:
+            return {"message": "Event not found"}, 404
+
+        # Check that this event is an *upcoming* event the user is attending
+        now = datetime.now()
+        if event.end_time <= now:
+            return {"message": "Event has already ended."}, 400
+
+        has_ticket = (
+            db.session.query(OrderItem)
+            .join(OrderItem.order)
+            .join(OrderItem.ticket)
+            .filter(Order.attendee_id == user_id)
+            .filter(Ticket.event_id == event_id)
+            .first()
+        )
+
+        if not has_ticket:
+            return {"message": "You do not have a ticket for this event."}, 403
+
+        # Get ticket details
+        ticket_data = (
+            db.session.query(Ticket.type, OrderItem.quantity, Ticket.price)
+            .join(OrderItem, OrderItem.ticket_id == Ticket.id)
+            .join(Order, Order.id == OrderItem.order_id)
+            .filter(Order.attendee_id == user_id, Ticket.event_id == event_id)
+            .all()
+        )
+
+        tickets = []
+        total_amount = 0
+        for ticket_type, quantity, price in ticket_data:
+            tickets.append({
+                "type": ticket_type,
+                "quantity": quantity,
+                "price": price,
+                "subtotal": quantity * price
+            })
+            total_amount += quantity * price
+
+        log_action(
+            user_id=user_id,
+            action="Viewed Upcoming Event Detail",
+            target_type="Event",
+            target_id=event_id,
+            status="Success",
+            ip_address=request.remote_addr
+        )
+
+        return {
+            "event": event.to_dict(only=("id", "title", "description", "start_time", "end_time", "location", "image_url")),
+            "tickets": tickets,
+            "total_amount": total_amount
+        }, 200
