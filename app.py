@@ -32,15 +32,21 @@ from resources.profile import MyProfile, UpdateProfile
 
 from resources.profile_events import MyUpcomingEvents, MyPastEvents
 
+from resources.attendees import EventAttendees,CheckInAttendee, CheckOutAttendee
+
 load_dotenv()
 
 
 app = Flask(__name__)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv('DATABASE_URI')
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///development.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'dev-secret-key')  
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
+
+app.config['CLOUDINARY_CLOUD_NAME'] = os.getenv('CLOUDINARY_CLOUD_NAME', 'default-name')
+app.config['CLOUDINARY_API_KEY'] = os.getenv('CLOUDINARY_API_KEY', 'default-key')
+app.config['CLOUDINARY_API_SECRET'] = os.getenv('CLOUDINARY_API_SECRET', 'default-secret')
 
 
 
@@ -49,9 +55,22 @@ db.init_app(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 migrate = Migrate(app, db)
-CORS(app, supports_credentials=True, resources={
-    r"/*": {"origins": ["http://127.0.0.1:5173", "http://localhost:5173", "http://ticksy-frontend.vercel.app"]}
+CORS(app, 
+     supports_credentials=True,
+     resources={
+    r"/*": {
+        "origins": [
+            "http://127.0.0.1:5173",
+            "http://localhost:5173",
+            "http://127.0.0.1:5174",
+            "http://localhost:5174",
+            "http://ticksy-frontend.vercel.app"
+        ],
+        "methods": ["GET", "PATCH", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
 })
+
 api = Api(app)
 
 @app.route("/")
@@ -116,6 +135,10 @@ api.add_resource(UpdateProfile, "/profile/me")
 
 api.add_resource(MyUpcomingEvents, "/profile/my-upcoming-events")
 api.add_resource(MyPastEvents, "/profile/my-past-events")
+
+api.add_resource(EventAttendees, '/organizer/events/<int:event_id>/attendees')
+api.add_resource(CheckInAttendee, "/organizer/checkin/<int:pass_id>")
+api.add_resource(CheckOutAttendee, "/organizer/checkout/<int:pass_id>")
 
 
 

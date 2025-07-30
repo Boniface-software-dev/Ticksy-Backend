@@ -16,7 +16,7 @@ ticket_parser.add_argument("quantity", type=int, required=True)
 class CreateTicket(Resource):
     @jwt_required()
     def post(self, event_id):
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         organizer = User.query.get(user_id)
 
         if not organizer or organizer.role != "organizer":
