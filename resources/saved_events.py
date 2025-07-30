@@ -59,10 +59,10 @@ class SaveEvent(Resource):
                 extra_data=str(e)
             )
             return {"message": "An error occurred."}, 500
-        
+    
 class MySavedEvents(Resource):
-    @jwt_required()
-    def get(self):
+        @jwt_required()
+        def get(self):
             user_id = get_jwt_identity()
             user = User.query.get(user_id)
     
@@ -77,3 +77,6 @@ class MySavedEvents(Resource):
                     "event.status", "event.image_url"
                 )) for s in saved
             ], 200
+
+        
+

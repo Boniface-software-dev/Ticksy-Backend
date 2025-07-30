@@ -23,176 +23,176 @@ with app.app_context():
         {"first_name": "Njeri", "last_name": "Kariuki", "email": "njeri@events.co.ke", "phone": "0721223344"},
     ]
 
+    organizer_users = []
     for org in organizers:
-        users.append(User(
+        user = User(
             first_name=org["first_name"],
             last_name=org["last_name"],
             email=org["email"],
             phone=org["phone"],
             password=bcrypt.generate_password_hash("organizer123").decode('utf-8'),
             role="organizer"
-        ))
+        )
+        users.append(user)
+        organizer_users.append(user)
 
     # Attendees
-    attendees = [
-        {"first_name": "Kevin", "last_name": "Odhiambo", "email": "kevin@gmail.com", "phone": "0711221122"},
-        {"first_name": "Grace", "last_name": "Wambui", "email": "grace@gmail.com", "phone": "0702334455"},
-        {"first_name": "Dennis", "last_name": "Kiptoo", "email": "dennis@gmail.com", "phone": "0711445566"},
-        {"first_name": "Sharon", "last_name": "Achieng", "email": "sharon@gmail.com", "phone": "0722334455"},
-        {"first_name": "Abdi", "last_name": "Hussein", "email": "abdi@gmail.com", "phone": "0701443344"},
-    ]
-
-    for att in attendees:
-        users.append(User(
-            first_name=att["first_name"],
-            last_name=att["last_name"],
-            email=att["email"],
-            phone=att["phone"],
+    attendees = []
+    for i in range(20):
+        attendees.append(User(
+            first_name=f"Attendee{i+1}",
+            last_name=f"Last{i+1}",
+            email=f"attendee{i+1}@gmail.com",
+            phone=f"07{random.randint(10000000,99999999)}",
             password=bcrypt.generate_password_hash("attendee123").decode('utf-8'),
             role="attendee"
         ))
 
+    users.extend(attendees)
     db.session.add_all(users)
     db.session.commit()
 
     print("🌱 Seeding events & tickets...")
 
-    sample_events = [
-        {
-            "title": "Blankets & Wine Nairobi",
-            "desc": "A premier music and arts experience in Nairobi.",
-            "image": "https://media.istockphoto.com/id/638492408/vector/craft-beer-festival-poster-design-template.jpg?s=612x612&w=0&k=20&c=GDHheEEP5gm4MHokMlbmrKMuEiXUtmFQwZUc-JBpAU0=",
-            "location": "Loresho Gardens",
-            "category": "Music",
-            "tags": "music,live,fun"
-        },
-        {
-            "title": "Koroga Festival",
-            "desc": "Celebrating African music, food and culture.",
-            "image": "https://media.istockphoto.com/id/1382746448/vector/covid19-new-variant-web-banner-template-and-video-thumbnail-editable-promotion-banner-design.jpg?s=1024x1024&w=is&k=20&c=7AspM_7IK6tXtdvMQAtXLF7K2shPlr6OFnUjqLNSdsU=",
-            "location": "Carnivore Grounds",
-            "category": "Culture",
-            "tags": "afrobeat,food,festival"
-        },
-        {
-            "title": "Nairobi Restaurant Week",
-            "desc": "Taste the best from top Nairobi restaurants.",
-            "image": "https://media.istockphoto.com/id/1188510295/vector/abstract-vector-colorful-gradient-landing-page-template.jpg?s=612x612&w=0&k=20&c=UhbIpbiUJ1RV9c9w8RqBv5MDShCbWvN4o29BreCMaIw=",
-            "location": "Various Locations",
-            "category": "Food",
-            "tags": "foodie,restaurants,cuisine"
-        },
-        {
-            "title": "Lake Naivasha Hike & Camp",
-            "desc": "Join us for an exciting adventure and bonfire night.",
-            "image": "https://media.istockphoto.com/id/1364100879/vector/se-strong-with-our-training-social-media-post-design-template-use-green-gradient-colors-on.jpg?s=612x612&w=0&k=20&c=Rv9WcfBAmSgNgiWaXwPpCMSs5Px4X6jecx7RluRjSZ4=",
-            "location": "Naivasha",
-            "category": "Adventure",
-            "tags": "hiking,camping,nature"
-        },
-        {
-            "title": "Techstars Startup Weekend Nairobi",
-            "desc": "Bring your startup idea to life in 54 hours.",
-            "image": "https://media.istockphoto.com/id/1364100879/vector/se-strong-with-our-training-social-media-post-design-template-use-green-gradient-colors-on.jpg?s=612x612&w=0&k=20&c=Rv9WcfBAmSgNgiWaXwPpCMSs5Px4X6jecx7RluRjSZ4=",
-            "location": "iHub, Nairobi",
-            "category": "Tech",
-            "tags": "startup,networking,pitch"
-        },
-        {
-            "title": "Art in the Park",
-            "desc": "Explore contemporary art from local artists.",
-            "image": "https://media.istockphoto.com/id/1364100879/vector/se-strong-with-our-training-social-media-post-design-template-use-green-gradient-colors-on.jpg?s=612x612&w=0&k=20&c=Rv9WcfBAmSgNgiWaXwPpCMSs5Px4X6jecx7RluRjSZ4=",
-            "location": "Uhuru Park",
-            "category": "Art",
-            "tags": "art,exhibition,local"
-        },
-        {
-            "title": "Nairobi Fashion Week",
-            "desc": "Showcasing the best of African fashion.",
-            "image": "https://media.istockphoto.com/id/1364100879/vector/se-strong-with-our-training-social-media-post-design-template-use-green-gradient-colors-on.jpg?s=612x612&w=0&k=20&c=Rv9WcfBAmSgNgiWaXwPpCMSs5Px4X6jecx7RluRjSZ4=",
-            "location": "Sarova Panafric Hotel",
-            "category": "Fashion",
-            "tags": "fashion,design,style"
-        },
-        {
-            "title": "Nairobi Book Fair",
-            "desc": "A celebration of literature and authors.",
-            "image": "https://media.istockphoto.com/id/1364100879/vector/se-strong-with-our-training-social-media-post-design-template-use-green-gradient-colors-on.jpg?s=612x612&w=0&k=20&c=Rv9WcfBAmSgNgiWaXwPpCMSs5Px4X6jecx7RluRjSZ4=",
-            "location": "Kenyatta International Convention Centre",
-            "category": "Literature",
-            "tags": "books,authors,reading"
-        },
-        {
-            "title": "Nairobi Film Festival",
-            "desc": "Screening the best of local and international films.",
-            "image": "https://media.istockphoto.com/id/1364100879/vector/se-strong-with-our-training-social-media-post-design-template-use-green-gradient-colors-on.jpg?s=612x612&w=0&k=20&c=Rv9WcfBAmSgNgiWaXwPpCMSs5Px4X6jecx7RluRjSZ4=",
-            "location": "Prestige Cinema",
-            "category": "Film",
-            "tags": "movies,screening,cinema"
-        },
-        {
-            "title": "Nairobi Tech Expo",
-            "desc": "Showcasing the latest in technology and innovation.",
-            "image": "https://media.istockphoto.com/id/1364100879/vector/se-strong-with-our-training-social-media-post-design-template-use-green-gradient-colors-on.jpg?s=612x612&w=0&k=20&c=Rv9WcfBAmSgNgiWaXwPpCMSs5Px4X6jecx7RluRjSZ4=",
-            "location": "Kenyatta International Convention Centre",
-            "category": "Tech",
-            "tags": "technology,innovation,expo"
-        },
-        {
-            "title": "Nairobi Jazz Festival",
-            "desc": "Celebrating jazz music with top local and international artists.",
-            "image": "https://media.istockphoto.com/id/1364100879/vector/se-strong-with-our-training-social-media-post-design-template-use-green-gradient-colors-on.jpg?s=612x612&w=0&k=20&c=Rv9WcfBAmSgNgiWaXwPpCMSs5Px4X6jecx7RluRjSZ4=",
-            "location": "Carnivore Grounds",
-            "category": "Music",
-            "tags": "jazz,live,concert"
-        },
-        {
-            "title": "Nairobi Photography Exhibition",
-            "desc": "Showcasing stunning photography from local artists.",
-            "image": "https://media.istockphoto.com/id/1364100879/vector/se-strong-with-our-training-social-media-post-design-template-use-green-gradient-colors-on.jpg?s=612x612&w=0&k=20&c=Rv9WcfBAmSgNgiWaXwPpCMSs5Px4X6jecx7RluRjSZ4=",
-            "location": "Alliance Française",
-            "category": "Art",
-            "tags": "photography,exhibition,art"
-        } 
-
-        
-    ]
-
+    categories = ["Music", "Tech", "Food", "Culture", "Adventure", "Fashion"]
     events = []
     tickets = []
 
-    for idx, ev in enumerate(sample_events):
-        organizer = users[2 + (idx % 3)]
+    # Distribute events
+    rejected_events = []
+    pending_events = []
+    approved_past_events = []
+    approved_future_events = []
+
+    # Rejected (3 per organizer)
+    for org in organizer_users:
+        for _ in range(3):
+            event = Event(
+                title=f"{org.first_name}'s Rejected Event",
+                description="Rejected event for testing.",
+                location=random.choice(["Nairobi", "Naivasha", "Mombasa", "Kisumu", "Eldoret"]),
+                start_time=datetime.now() + timedelta(days=random.randint(5, 60)),
+                end_time=datetime.now() + timedelta(days=random.randint(5, 60), hours=4),
+                category=random.choice(categories),
+                tags="test,rejected",
+                status="rejected",
+                is_approved=False,
+                image_url=f"https://source.unsplash.com/400x300/?rejected,event",
+                organizer_id=org.id,
+                attendee_count=0
+            )
+            rejected_events.append(event)
+
+    # Pending (3 per organizer, 1 extra)
+    for org in organizer_users:
+        for _ in range(3):
+            event = Event(
+                title=f"{org.first_name}'s Pending Event",
+                description="Pending approval.",
+                location=random.choice(["Nairobi", "Naivasha", "Mombasa", "Kisumu", "Eldoret"]),
+                start_time=datetime.now() + timedelta(days=random.randint(5, 60)),
+                end_time=datetime.now() + timedelta(days=random.randint(5, 60), hours=4),
+                category=random.choice(categories),
+                tags="pending,unapproved",
+                status="pending",
+                is_approved=False,
+                image_url=f"https://source.unsplash.com/400x300/?pending,event",
+                organizer_id=org.id,
+                attendee_count=0
+            )
+            pending_events.append(event)
+
+    # Add 1 extra pending to random organizer
+    extra_org = random.choice(organizer_users)
+    pending_events.append(Event(
+        title=f"Extra Pending Event",
+        description="Extra pending event for distribution.",
+        location="Eldoret",
+        start_time=datetime.now() + timedelta(days=20),
+        end_time=datetime.now() + timedelta(days=20, hours=4),
+        category="Culture",
+        tags="pending,extra",
+        status="pending",
+        is_approved=False,
+        image_url=f"https://source.unsplash.com/400x300/?event,extra",
+        organizer_id=extra_org.id,
+        attendee_count=0
+    ))
+
+    # Approved Future Events (7 per organizer)
+    for org in organizer_users:
+        for _ in range(7):
+            start = datetime.now() + timedelta(days=random.randint(5, 90))
+            end = start + timedelta(hours=4)
+            event = Event(
+                title=f"{org.first_name}'s Future Event",
+                description="An exciting upcoming event.",
+                location=random.choice(["Nairobi", "Naivasha", "Mombasa"]),
+                start_time=start,
+                end_time=end,
+                category=random.choice(categories),
+                tags="future,approved",
+                status="approved",
+                is_approved=True,
+                image_url=f"https://source.unsplash.com/400x300/?event,future",
+                organizer_id=org.id,
+                attendee_count=0
+            )
+            approved_future_events.append(event)
+
+    # Approved Past Events (10 total)
+    for _ in range(10):
+        org = random.choice(organizer_users)
+        start = datetime.now() - timedelta(days=random.randint(5, 90))
+        end = start + timedelta(hours=5)
         event = Event(
-            title=ev["title"],
-            description=ev["desc"],
-            location=ev["location"],
-            start_time=datetime.now() + timedelta(days=idx+1),
-            end_time=datetime.now() + timedelta(days=idx+1, hours=4),
-            category=ev["category"],
-            tags=ev["tags"],
+            title=f"{org.first_name}'s Past Event",
+            description="An exciting past event.",
+            location=random.choice(["Nairobi", "Kisumu", "Mombasa"]),
+            start_time=start,
+            end_time=end,
+            category=random.choice(categories),
+            tags="past,approved",
             status="approved",
             is_approved=True,
-            image_url=ev["image"],
-            organizer_id=organizer.id,
+            image_url=f"https://source.unsplash.com/400x300/?event,past",
+            organizer_id=org.id,
             attendee_count=0
         )
-        db.session.add(event)
-        db.session.flush()
-        events.append(event)
+        approved_past_events.append(event)
 
-        tickets.append(Ticket(type="Regular", price=1500.00, quantity=150, sold=40, event_id=event.id))
-        tickets.append(Ticket(type="VIP", price=3000.00, quantity=50, sold=10, event_id=event.id))
+    all_events = rejected_events + pending_events + approved_future_events + approved_past_events
+    db.session.add_all(all_events)
+    db.session.flush()  # To get IDs
+
+    # Only create tickets for approved events
+    approved_events_with_tickets = approved_future_events + approved_past_events
+
+    for event in approved_events_with_tickets:
+        for t in ["Regular", "VIP", "VVIP"]:
+            qty = random.randint(50, 200)
+            sold = random.randint(10, qty)
+            tickets.append(Ticket(
+                type=t,
+                price=1500 * (1 if t == "Regular" else 2 if t == "VIP" else 3),
+                quantity=qty,
+                sold=sold,
+                event_id=event.id
+            ))
 
     db.session.add_all(tickets)
     db.session.commit()
 
-    print("🌱 Seeding orders, order items, passes, reviews...")
+    print("🌱 Seeding orders, passes, reviews...")
 
-    for attendee in users[-5:]:
-        for _ in range(2):
+    for attendee in users[5:]:
+        for _ in range(random.randint(2, 4)):
             ticket = random.choice(tickets)
-            quantity = random.randint(1, 2)
+            event = next((e for e in approved_events_with_tickets if e.id == ticket.event_id), None)
+            if not event:
+                continue
+
+            quantity = random.randint(1, 4)
             order = Order(
                 order_id=str(uuid.uuid4()),
                 attendee_id=attendee.id,
@@ -207,52 +207,55 @@ with app.app_context():
             db.session.add(item)
             db.session.flush()
 
-            for q in range(quantity):
+            for _ in range(quantity):
                 db.session.add(EventPass(
                     ticket_code=str(uuid.uuid4())[:8].upper(),
-                    attendee_first_name=f"Guest{q+1}",
+                    attendee_first_name=attendee.first_name,
                     attendee_last_name=attendee.last_name,
-                    attendee_email=f"guest{q+1}_{attendee.email}",
-                    attendee_phone=f"07{random.randint(10000000,99999999)}",
+                    attendee_email=attendee.email,
+                    attendee_phone=attendee.phone,
                     att_status=random.choice([True, False]),
                     order_item_id=item.id
                 ))
 
-            ticket.event.attendee_count += quantity
+            event.attendee_count += quantity
 
-            if random.choice([True, False]):
+            # Add review only if event is approved and in past
+            if event.start_time < datetime.now():
                 db.session.add(Review(
                     rating=random.randint(3, 5),
-                    comment=random.choice(["Loved it!", "Great experience!", "Would attend again."]),
+                    comment=random.choice(["Amazing", "Loved it", "Inspiring", "Well organized"]),
                     attendee_id=attendee.id,
-                    event_id=ticket.event.id
+                    event_id=event.id
                 ))
 
     db.session.commit()
 
-    print("🌱 Seeding saved events...")
-    for attendee in users[-5:]:
-        db.session.add(SavedEvent(user_id=attendee.id, event_id=random.choice(events).id))
+    print("🌱 Seeding saved events & reports...")
 
-    db.session.commit()
+    for attendee in users[5:]:
+        for _ in range(random.randint(1, 4)):
+            db.session.add(SavedEvent(
+                user_id=attendee.id,
+                event_id=random.choice(all_events).id
+            ))
 
-    print("🌱 Seeding reports & logs...")
     for admin in users[:2]:
-        db.session.add(Report(
-            report_data="Analytics for July Events.",
-            admin_id=admin.id,
-            event_id=random.choice(events).id
-        ))
-
-        db.session.add(AuditLog(
-            action="Seeded initial test events",
-            user_id=admin.id,
-            target_type="Event",
-            target_id=random.choice(events).id,
-            status="Success",
-            ip_address="127.0.0.1",
-            extra_data={"note": "Initial seed"}
-        ))
+        for _ in range(10):
+            db.session.add(Report(
+                report_data="Auto-generated monthly performance.",
+                admin_id=admin.id,
+                event_id=random.choice(all_events).id
+            ))
+            db.session.add(AuditLog(
+                action="Generated report",
+                user_id=admin.id,
+                target_type="Event",
+                target_id=random.choice(all_events).id,
+                status="Success",
+                ip_address="127.0.0.1",
+                extra_data={"tool": "Seeder", "reason": "load test"}
+            ))
 
     db.session.commit()
-    print("Seeding complete")
+    print("✅ Seeding complete.")
