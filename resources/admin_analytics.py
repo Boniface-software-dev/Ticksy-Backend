@@ -5,6 +5,8 @@ from flask import request
 from models import db, User, Event, Ticket, Order, OrderItem
 from sqlalchemy import func, extract
 from datetime import datetime
+import calendar
+from utils.logger import log_action
 
 
 class AdminSummary(Resource):
@@ -30,15 +32,56 @@ class AdminSummary(Resource):
 class TicketSalesTrends(Resource):
     @jwt_required()
     def get(self):
-        data = db.session.query(
-            extract('month', Order.created_at).label('month'),
-            func.count(OrderItem.id).label('tickets_sold')
-        ).join(OrderItem).group_by('month').order_by('month').all()
+        admin_id = get_jwt_identity()
+        admin = User.query.get(admin_id)
 
-        return [
-            {"month": int(month), "tickets_sold": tickets}
-            for month, tickets in data
-        ], 200
+        if not admin or admin.role != "admin":
+            return {"message": "Admins only."}, 403
+
+        try:
+           
+            results = (
+                db.session.query(
+                    extract("month", Event.start_time).label("month"),
+                    func.sum(OrderItem.quantity).label("sales")
+                )
+                .join(OrderItem.ticket)
+                .join(Ticket.event)
+                .group_by("month")
+                .order_by("month")
+                .all()
+            )
+
+            trends = [
+                {
+                    "month": calendar.month_abbr[int(month)],
+                    "sales": int(sales)
+                }
+                for month, sales in results
+            ]
+
+            log_action(
+                user_id=admin_id,
+                action="Viewed Ticket Sales Trends",
+                target_type="Analytics",
+                target_id=None,
+                status="Success",
+                ip_address=request.remote_addr
+            )
+
+            return trends, 200
+
+        except Exception as e:
+            log_action(
+                user_id=admin_id,
+                action="Viewed Ticket Sales Trends",
+                target_type="Analytics",
+                target_id=None,
+                status="Failed",
+                ip_address=request.remote_addr,
+                extra_data={"error": str(e)}
+            )
+            return {"message": "Could not generate sales trends."}, 500
 
 
 class RevenueByTicketType(Resource):
