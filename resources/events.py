@@ -8,25 +8,15 @@ import cloudinary.uploader
 from werkzeug.utils import secure_filename
 
 
-
-
 event_parser = reqparse.RequestParser()
 event_parser.add_argument("title", type=str, required=True)
 event_parser.add_argument("description", type=str, required=True)
 event_parser.add_argument("location", type=str, required=True)
 event_parser.add_argument("start_time", type=str, required=True)
 event_parser.add_argument("end_time", type=str, required=True)
-
-event_parser.add_argument("category", type=str, required=False)
-event_parser.add_argument("tags", type=str, required=False)
-event_parser.add_argument("image_url", type=str, required=False)
-
-
-
 event_parser.add_argument("category", type=str, required=True)
 event_parser.add_argument("tags", type=str, required=True)
 event_parser.add_argument("image_url", type=str, required=True)
-
 
 
 class EventList(Resource):
@@ -37,9 +27,6 @@ class EventList(Resource):
             "start_time", "end_time", "category", "tags", "image_url",
             "organizer.id", "organizer.first_name", "organizer.last_name"
         )) for e in events], 200
-
-
-
 
 
 class SingleEvent(Resource):
@@ -53,9 +40,8 @@ class SingleEvent(Resource):
             "start_time", "end_time", "category", "tags", "image_url",
             "organizer.id", "organizer.first_name", "organizer.last_name",
             "tickets.id", "tickets.type", "tickets.price", 
-            "tickets.quantity", "tickets.sold" 
+            "tickets.quantity", "tickets.sold"
         )), 200
-
 
 
 class CreateEvent(Resource):
@@ -68,7 +54,6 @@ class CreateEvent(Resource):
             return {"message": "Only organizers can create events."}, 403
 
         try:
-            # Get form data
             title = request.form.get("title")
             description = request.form.get("description")
             location = request.form.get("location")
@@ -77,23 +62,20 @@ class CreateEvent(Resource):
             category = request.form.get("category")
             tags = request.form.get("tags")
 
-            # Validate required fields
             if not all([title, description, location, start_time, end_time]):
                 return {"message": "Missing required fields."}, 400
 
-            # Upload image if provided
             image_url = None
             image = request.files.get("image")
             if image:
                 upload_result = cloudinary.uploader.upload(
                     image,
-                    folder="events",  # optional folder
+                    folder="events",
                     use_filename=True,
                     unique_filename=False
                 )
                 image_url = upload_result.get("secure_url")
 
-            # Create event with status "pending"
             event = Event(
                 title=title,
                 description=description,
@@ -135,8 +117,6 @@ class CreateEvent(Resource):
             return {"message": "Event creation failed.", "error": str(e)}, 500
 
 
-
-
 class UpdateEvent(Resource):
     @jwt_required()
     def put(self, id):
@@ -147,22 +127,18 @@ class UpdateEvent(Resource):
             return {"message": "Event not found or unauthorized."}, 403
 
         try:
-            # Parse form data (including file)
             data = request.form.to_dict()
-            image_file = request.files.get('image')  # Get image if uploaded
+            image_file = request.files.get('image')
 
-            # Update event fields
             for field in ['title', 'description', 'location', 'category', 'tags']:
                 if field in data and data[field].strip():
                     setattr(event, field, data[field])
 
             if 'start_time' in data:
                 event.start_time = datetime.fromisoformat(data["start_time"])
-
             if 'end_time' in data:
                 event.end_time = datetime.fromisoformat(data["end_time"])
 
-            # Handle optional image upload
             if image_file and image_file.filename != "":
                 filename = secure_filename(image_file.filename)
                 result = cloudinary.uploader.upload(
@@ -229,10 +205,6 @@ class DeleteEvent(Resource):
         return {"message": "Event deleted successfully."}, 200
 
 
-
-
-
-
 class MyEvents(Resource):
     @jwt_required()
     def get(self):
@@ -245,19 +217,12 @@ class MyEvents(Resource):
                 "id", "title", "description", "location",
                 "start_time", "end_time", "category", "tags", "image_url", "status"
             ))
-
-            # Convert datetime fields to ISO format
             event_dict["start_time"] = e.start_time.isoformat() if e.start_time else None
             event_dict["end_time"] = e.end_time.isoformat() if e.end_time else None
-
-            # Add tickets info
             event_dict["tickets"] = [
                 ticket.to_dict(only=("id", "type", "price", "quantity", "sold"))
                 for ticket in e.tickets
             ]
-
             serialized.append(event_dict)
 
         return serialized, 200
-
-
