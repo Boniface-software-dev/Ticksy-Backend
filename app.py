@@ -1,5 +1,5 @@
 import os
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_migrate import Migrate
 from flask_restful import Api
 from flask_cors import CORS
@@ -23,6 +23,8 @@ from resources.reviews import PostReview, EventReviews
 from resources.profile import MyProfile, UpdateProfile
 from resources.profile_events import MyUpcomingEvents, MyPastEvents
 from resources.profile_events import PastEventDetail
+
+
 
 
 from models import User
@@ -88,6 +90,15 @@ def missing_token(error):
         "success": False,
         "errors": ["Authorization token is required"],
     }, 401
+
+@app.route('/api/v1/mpesa/callback', methods=["POST"])
+def mpesa_callback():
+    data = request.get_json()
+    # TODO: Match order via data['Body']['stkCallback']['CheckoutRequestID'], update DB
+    print("MPESA CALLBACK:", data)
+    return {"ResultCode": 0, "ResultDesc": "Accepted"}, 200
+
+
 
 # AUTH
 api.add_resource(Signup, "/signup")
