@@ -5,6 +5,7 @@ from models import db, Order, OrderItem, Ticket, EventPass, User
 from utils.logger import log_action
 import uuid
 from datetime import datetime
+from resources.mpesaConfig import initiate_stk_push
 
 
 order_parser = reqparse.RequestParser()
@@ -15,52 +16,68 @@ order_parser.add_argument("attendees", type=list, location="json", required=True
 class CreateOrder(Resource):
     @jwt_required()
     def post(self):
-        data = order_parser.parse_args()
+        data = request.get_json()
         user_id = get_jwt_identity()
         attendee = User.query.get(user_id)
 
         if not attendee or attendee.role != "attendee":
             return {"message": "Only attendees can place orders."}, 403
 
-        ticket = Ticket.query.get(data["ticket_id"])
-        if not ticket or ticket.quantity - ticket.sold < data["quantity"]:
-            return {"message": "Not enough tickets available."}, 400
-
-        if len(data["attendees"]) != data["quantity"]:
-            return {"message": "Mismatch between quantity and attendee details."}, 400
+        attendees = data.get("attendees", [])
+        if not attendees:
+            return {"message": "Attendee details are required."}, 400
 
         try:
-            total = ticket.price * data["quantity"]
+            ticket_groups = {}
+            total = 0
+
+            for att in attendees:
+                tid = att.get("ticket_id")
+                if tid is None:
+                    return {"message": "Each attendee must have a ticket_id."}, 400
+                ticket_groups.setdefault(tid, []).append(att)
+
             order = Order(
                 order_id=str(uuid.uuid4()),
                 attendee_id=user_id,
-                total_amount=total,
+                total_amount=0,
                 created_at=datetime.utcnow()
             )
             db.session.add(order)
             db.session.flush()
 
-            order_item = OrderItem(
-                order_id=order.id,
-                ticket_id=ticket.id,
-                quantity=data["quantity"]
-            )
-            db.session.add(order_item)
+            for ticket_id, group in ticket_groups.items():
+                ticket = Ticket.query.get(ticket_id)
+                if not ticket or ticket.quantity - ticket.sold < len(group):
+                    return {"message": f"Not enough tickets for type ID {ticket_id}."}, 400
 
-            ticket.sold += data["quantity"]
+                total += ticket.price * len(group)
+                ticket.sold += len(group)
 
-            for att in data["attendees"]:
-                ep = EventPass(
-                    ticket_code=str(uuid.uuid4())[:8].upper(),
-                    attendee_first_name=att["first_name"],
-                    attendee_last_name=att["last_name"],
-                    attendee_email=att["email"],
-                    attendee_phone=att["phone"],
-                    order_item=order_item
+                order_item = OrderItem(
+                    order_id=order.id,
+                    ticket_id=ticket.id,
+                    quantity=len(group)
                 )
-                db.session.add(ep)
+                db.session.add(order_item)
 
+                for att in group:
+                    ep = EventPass(
+                        ticket_code=str(uuid.uuid4())[:8].upper(),
+                        attendee_first_name=att["first_name"],
+                        attendee_last_name=att["last_name"],
+                        attendee_email=att["email"],
+                        attendee_phone=att["phone"],
+                        order_item=order_item
+                    )
+                    db.session.add(ep)
+
+            order.total_amount = total
             db.session.commit()
+
+            # STK Push
+            primary_phone = attendees[0]["phone"]
+            stk_response = initiate_stk_push(primary_phone, int(total), order.order_id)
 
             log_action(
                 user_id=user_id,
@@ -72,8 +89,10 @@ class CreateOrder(Resource):
             )
 
             return {
-                "message": "Order placed. Proceed to payment.",
-                "order": order.to_dict(only=("id", "order_id", "status", "total_amount", "created_at"))
+                "message": "Order placed. Check your phone to complete M-Pesa payment.",
+                "order": order.to_dict(only=("id", "order_id", "status", "total_amount", "created_at")),
+                "payment_url": None,  # STK Push does not need a redirect
+                "stk_response": stk_response
             }, 201
 
         except Exception as e:
