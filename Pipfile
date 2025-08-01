@@ -11,6 +11,7 @@ flask-bcrypt = "==1.0.1"
 flask-jwt-extended = "==4.6.0"
 flask-migrate = "*"
 flask-restful = "*"
+requests = "*"
 colorama = "*"
 psycopg2-binary = "*"
 python-dotenv = "*"
@@ -18,7 +19,7 @@ gunicorn = "*"
 flask-cors = "*"
 faker = "*"
 cloudinary = "*"
-requests = "*"
+
 
 [dev-packages]
 
