@@ -21,12 +21,18 @@ event_parser.add_argument("image_url", type=str, required=True)
 
 class EventList(Resource):
     def get(self):
-        events = Event.query.filter_by(is_approved=True).order_by(Event.start_time.asc()).all()
+        now = datetime.utcnow()
+        events = Event.query.filter(
+            Event.status == "approved",
+            Event.start_time > now
+        ).order_by(Event.start_time.asc()).all()
+
         return [e.to_dict(only=(
             "id", "title", "description", "location",
             "start_time", "end_time", "category", "tags", "image_url",
             "organizer.id", "organizer.first_name", "organizer.last_name"
         )) for e in events], 200
+
 
 
 class SingleEvent(Resource):
