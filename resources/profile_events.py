@@ -148,6 +148,7 @@ class PastEventDetail(Resource):
             "total_amount": total_amount,
             "review": review_data
         }, 200
+    
 class UpcomingEventDetail(Resource):
     @jwt_required()
     def get(self, event_id):
