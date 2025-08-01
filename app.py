@@ -36,6 +36,14 @@ from resources.attendees import EventAttendees,CheckInAttendee, CheckOutAttendee
 
 from resources.attendee_profile import UpcomingAttendeeEvents, PastAttendeeEvents
 
+from resources.admin_analytics import (
+    AdminSummary,
+    TicketSalesTrends,
+    RevenueByTicketType,
+    TopEventTypes,
+    TopEventsByRevenue
+)
+
 load_dotenv()
 
 
@@ -145,6 +153,14 @@ api.add_resource(PastAttendeeEvents, "/attendee/past-events")
 api.add_resource(EventAttendees, '/organizer/events/<int:event_id>/attendees')
 api.add_resource(CheckInAttendee, "/organizer/checkin/<int:pass_id>")
 api.add_resource(CheckOutAttendee, "/organizer/checkout/<int:pass_id>")
+
+
+
+api.add_resource(AdminSummary, '/admin/analytics/summary')
+api.add_resource(TicketSalesTrends, '/admin/analytics/ticket-sales-trends')
+api.add_resource(RevenueByTicketType, '/admin/analytics/revenue-by-ticket-type')
+api.add_resource(TopEventTypes, '/admin/analytics/top-event-types')
+api.add_resource(TopEventsByRevenue, '/admin/analytics/top-events-by-revenue')
 
 
 
