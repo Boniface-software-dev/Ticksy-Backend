@@ -30,9 +30,11 @@ from resources.reviews import PostReview, EventReviews
 from resources.profile import MyProfile, UpdateProfile
 
 
-from resources.profile_events import MyUpcomingEvents, MyPastEvents
+from resources.profile_events import MyUpcomingEvents, MyPastEvents, PastEventDetail, UpcomingEventDetail
 
 from resources.attendees import EventAttendees,CheckInAttendee, CheckOutAttendee
+
+from resources.attendee_profile import UpcomingAttendeeEvents, PastAttendeeEvents
 
 load_dotenv()
 
@@ -135,6 +137,10 @@ api.add_resource(UpdateProfile, "/profile/me")
 
 api.add_resource(MyUpcomingEvents, "/profile/my-upcoming-events")
 api.add_resource(MyPastEvents, "/profile/my-past-events")
+api.add_resource(PastEventDetail, "/profile/my-past-events/<int:event_id>")
+api.add_resource(UpcomingEventDetail, "/profile/my-upcoming-events/<int:event_id>")
+api.add_resource(UpcomingAttendeeEvents, "/attendee/upcoming-events")
+api.add_resource(PastAttendeeEvents, "/attendee/past-events")
 
 api.add_resource(EventAttendees, '/organizer/events/<int:event_id>/attendees')
 api.add_resource(CheckInAttendee, "/organizer/checkin/<int:pass_id>")
