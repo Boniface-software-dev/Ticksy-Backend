@@ -107,7 +107,7 @@ class Login(Resource):
                 }, 403
 
            
-            token = create_access_token(identity=user.id, expires_delta=timedelta(days=1))
+            token = create_access_token(identity=str(user.id), expires_delta=timedelta(days=1))
 
             log_action(
                 user_id=user.id,
