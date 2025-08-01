@@ -18,6 +18,7 @@ gunicorn = "*"
 flask-cors = "*"
 faker = "*"
 cloudinary = "*"
+requests = "*"
 
 [dev-packages]
 
