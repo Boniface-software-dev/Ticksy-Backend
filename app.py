@@ -23,13 +23,6 @@ from resources.reviews import PostReview, EventReviews
 from resources.profile import MyProfile, UpdateProfile
 from resources.profile_events import MyUpcomingEvents, MyPastEvents
 from resources.profile_events import PastEventDetail, UpcomingEventDetail
-
-
-
-
-
-from models import User
-
 from resources.admin_analytics import (
     AdminSummary,
     TicketSalesTrends,
@@ -37,12 +30,9 @@ from resources.admin_analytics import (
     TopEventTypes,
     TopEventsByRevenue
 )
-
 from resources.attendee_profile import UpcomingAttendeeEvents, PastAttendeeEvents
-
-from resources.attendees import EventAttendees,CheckInAttendee, CheckOutAttendee
-load_dotenv()
-
+from resources.attendees import EventAttendees, CheckInAttendee, CheckOutAttendee
+from models import User
 
 load_dotenv()
 
@@ -58,11 +48,11 @@ bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 migrate = Migrate(app, db)
 
-# Allow frontend dev port (Vite: 5173) to communicate with backend
-
-
-CORS(app, supports_credentials=True, origins=["http://localhost:5173", "http://127.0.0.1:5173"])
-
+CORS(app,
+     origins=["https://ticksy-frontend.vercel.app"],
+     supports_credentials=True,
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+     allow_headers=["Content-Type", "Authorization"])
 
 api = Api(app)
 
@@ -95,17 +85,12 @@ def missing_token(error):
 @app.route('/api/v1/mpesa/callback', methods=["POST"])
 def mpesa_callback():
     data = request.get_json()
-    # TODO: Match order via data['Body']['stkCallback']['CheckoutRequestID'], update DB
     print("MPESA CALLBACK:", data)
     return {"ResultCode": 0, "ResultDesc": "Accepted"}, 200
 
-
-
-# AUTH
 api.add_resource(Signup, "/signup")
 api.add_resource(Login, "/login")
 
-# ADMIN
 api.add_resource(AllUsers, "/admin/users")
 api.add_resource(BanOrUnbanUser, "/admin/users/<int:id>/status")
 api.add_resource(UpdateUserRole, "/admin/users/<int:id>/role")
@@ -113,7 +98,6 @@ api.add_resource(AdminDashboard, "/admin/dashboard")
 api.add_resource(AdminReports, "/admin/reports")
 api.add_resource(AdminAuditLogs, "/admin/logs")
 
-# EVENTS
 api.add_resource(EventList, "/events")
 api.add_resource(SingleEvent, "/events/<int:id>")
 api.add_resource(CreateEvent, "/events")
@@ -123,35 +107,26 @@ api.add_resource(MyEvents, "/my-events")
 api.add_resource(PendingEvents, "/admin/pending")
 api.add_resource(ApproveRejectEvent, "/admin/<int:id>")
 
-# SAVED EVENTS
 api.add_resource(SaveEvent, "/events/<int:id>/save")
 api.add_resource(MySavedEvents, "/my-saved-events")
 
-# ORDERS
 api.add_resource(CreateOrder, "/orders")
 api.add_resource(ConfirmPayment, "/orders/<int:id>/pay")
 api.add_resource(MyOrders, "/orders")
 api.add_resource(SingleOrder, "/orders/<int:id>")
 
-# TICKETS
 api.add_resource(CreateTicket, "/events/<int:event_id>/tickets")
 api.add_resource(EventTickets, "/events/<int:event_id>/tickets")
 
-# REVIEWS
 api.add_resource(PostReview, "/events/<int:id>/review")
 api.add_resource(EventReviews, "/events/<int:id>/reviews")
 
-# PROFILE
 api.add_resource(MyProfile, "/profile/me")
 api.add_resource(UpdateProfile, "/profile/me")
 api.add_resource(MyUpcomingEvents, "/profile/my-upcoming-events")
 api.add_resource(MyPastEvents, "/profile/my-past-events")
 api.add_resource(PastEventDetail, "/profile/my-past-events/<int:event_id>")
 api.add_resource(UpcomingEventDetail, "/profile/my-upcoming-events/<int:event_id>")
-
-
-
-
 
 api.add_resource(AdminSummary, '/admin/analytics/summary')
 api.add_resource(TicketSalesTrends, '/admin/analytics/ticket-sales-trends')
@@ -165,8 +140,6 @@ api.add_resource(PastAttendeeEvents, "/attendee/past-events")
 api.add_resource(EventAttendees, '/organizer/events/<int:event_id>/attendees')
 api.add_resource(CheckInAttendee, "/organizer/checkin/<int:pass_id>")
 api.add_resource(CheckOutAttendee, "/organizer/checkout/<int:pass_id>")
-
-
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
