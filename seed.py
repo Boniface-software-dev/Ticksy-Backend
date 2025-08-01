@@ -17,14 +17,13 @@ with app.app_context():
     users.append(User(first_name="Bob", last_name="Boss", email="bob@admin.com", phone="0700000002", password=bcrypt.generate_password_hash("admin123").decode('utf-8'), role="admin"))
 
     # Organizers
-    organizers = [
+    organizers_info = [
         {"first_name": "Wanjiru", "last_name": "Mwangi", "email": "wanjiru@events.co.ke", "phone": "0701223344"},
         {"first_name": "Brian", "last_name": "Otieno", "email": "brian@events.co.ke", "phone": "0711223344"},
         {"first_name": "Njeri", "last_name": "Kariuki", "email": "njeri@events.co.ke", "phone": "0721223344"},
     ]
-
     organizer_users = []
-    for org in organizers:
+    for org in organizers_info:
         user = User(
             first_name=org["first_name"],
             last_name=org["last_name"],
@@ -37,37 +36,34 @@ with app.app_context():
         organizer_users.append(user)
 
     # Attendees
-    attendees = []
-    for i in range(20):
-        attendees.append(User(
+    attendees = [
+        User(
             first_name=f"Attendee{i+1}",
             last_name=f"Last{i+1}",
             email=f"attendee{i+1}@gmail.com",
-            phone=f"07{random.randint(10000000,99999999)}",
+            phone=f"07{random.randint(10000000, 99999999)}",
             password=bcrypt.generate_password_hash("attendee123").decode('utf-8'),
             role="attendee"
-        ))
-
+        ) for i in range(20)
+    ]
     users.extend(attendees)
     db.session.add_all(users)
     db.session.commit()
 
     print("🌱 Seeding events & tickets...")
-
     categories = ["Music", "Tech", "Food", "Culture", "Adventure", "Fashion"]
     events = []
     tickets = []
 
-    # Distribute events
     rejected_events = []
     pending_events = []
-    approved_past_events = []
     approved_future_events = []
+    approved_past_events = []
 
-    # Rejected (3 per organizer)
+    # Rejected Events
     for org in organizer_users:
         for _ in range(3):
-            event = Event(
+            rejected_events.append(Event(
                 title=f"{org.first_name}'s Rejected Event",
                 description="Rejected event for testing.",
                 location=random.choice(["Nairobi", "Naivasha", "Mombasa", "Kisumu", "Eldoret"]),
@@ -77,16 +73,15 @@ with app.app_context():
                 tags="test,rejected",
                 status="rejected",
                 is_approved=False,
-                image_url=f"https://source.unsplash.com/400x300/?rejected,event",
+                image_url="https://source.unsplash.com/400x300/?rejected,event",
                 organizer_id=org.id,
                 attendee_count=0
-            )
-            rejected_events.append(event)
+            ))
 
-    # Pending (3 per organizer, 1 extra)
+    # Pending Events
     for org in organizer_users:
         for _ in range(3):
-            event = Event(
+            pending_events.append(Event(
                 title=f"{org.first_name}'s Pending Event",
                 description="Pending approval.",
                 location=random.choice(["Nairobi", "Naivasha", "Mombasa", "Kisumu", "Eldoret"]),
@@ -96,16 +91,15 @@ with app.app_context():
                 tags="pending,unapproved",
                 status="pending",
                 is_approved=False,
-                image_url=f"https://source.unsplash.com/400x300/?pending,event",
+                image_url="https://source.unsplash.com/400x300/?pending,event",
                 organizer_id=org.id,
                 attendee_count=0
-            )
-            pending_events.append(event)
+            ))
 
-    # Add 1 extra pending to random organizer
+    # One extra pending event
     extra_org = random.choice(organizer_users)
     pending_events.append(Event(
-        title=f"Extra Pending Event",
+        title="Extra Pending Event",
         description="Extra pending event for distribution.",
         location="Eldoret",
         start_time=datetime.now() + timedelta(days=20),
@@ -114,17 +108,17 @@ with app.app_context():
         tags="pending,extra",
         status="pending",
         is_approved=False,
-        image_url=f"https://source.unsplash.com/400x300/?event,extra",
+        image_url="https://source.unsplash.com/400x300/?event,extra",
         organizer_id=extra_org.id,
         attendee_count=0
     ))
 
-    # Approved Future Events (7 per organizer)
+    # Approved Future Events
     for org in organizer_users:
         for _ in range(7):
             start = datetime.now() + timedelta(days=random.randint(5, 90))
             end = start + timedelta(hours=4)
-            event = Event(
+            approved_future_events.append(Event(
                 title=f"{org.first_name}'s Future Event",
                 description="An exciting upcoming event.",
                 location=random.choice(["Nairobi", "Naivasha", "Mombasa"]),
@@ -134,18 +128,17 @@ with app.app_context():
                 tags="future,approved",
                 status="approved",
                 is_approved=True,
-                image_url=f"https://source.unsplash.com/400x300/?event,future",
+                image_url="https://source.unsplash.com/400x300/?event,future",
                 organizer_id=org.id,
                 attendee_count=0
-            )
-            approved_future_events.append(event)
+            ))
 
-    # Approved Past Events (10 total)
+    # Approved Past Events
     for _ in range(10):
         org = random.choice(organizer_users)
         start = datetime.now() - timedelta(days=random.randint(5, 90))
         end = start + timedelta(hours=5)
-        event = Event(
+        approved_past_events.append(Event(
             title=f"{org.first_name}'s Past Event",
             description="An exciting past event.",
             location=random.choice(["Nairobi", "Kisumu", "Mombasa"]),
@@ -155,20 +148,17 @@ with app.app_context():
             tags="past,approved",
             status="approved",
             is_approved=True,
-            image_url=f"https://source.unsplash.com/400x300/?event,past",
+            image_url="https://source.unsplash.com/400x300/?event,past",
             organizer_id=org.id,
             attendee_count=0
-        )
-        approved_past_events.append(event)
+        ))
 
     all_events = rejected_events + pending_events + approved_future_events + approved_past_events
     db.session.add_all(all_events)
-    db.session.flush()  # To get IDs
+    db.session.flush()
 
-    # Only create tickets for approved events
-    approved_events_with_tickets = approved_future_events + approved_past_events
-
-    for event in approved_events_with_tickets:
+    # Create tickets for approved events
+    for event in approved_future_events + approved_past_events:
         for t in ["Regular", "VIP", "VVIP"]:
             qty = random.randint(50, 200)
             sold = random.randint(10, qty)
@@ -184,11 +174,10 @@ with app.app_context():
     db.session.commit()
 
     print("🌱 Seeding orders, passes, reviews...")
-
     for attendee in users[5:]:
         for _ in range(random.randint(2, 4)):
             ticket = random.choice(tickets)
-            event = next((e for e in approved_events_with_tickets if e.id == ticket.event_id), None)
+            event = next((e for e in approved_future_events + approved_past_events if e.id == ticket.event_id), None)
             if not event:
                 continue
 
@@ -198,7 +187,7 @@ with app.app_context():
                 attendee_id=attendee.id,
                 status="paid",
                 total_amount=ticket.price * quantity,
-                mpesa_receipt=f"MPESA{random.randint(100000,999999)}"
+                mpesa_receipt=f"MPESA{random.randint(100000, 999999)}"
             )
             db.session.add(order)
             db.session.flush()
@@ -220,7 +209,6 @@ with app.app_context():
 
             event.attendee_count += quantity
 
-            # Add review only if event is approved and in past
             if event.start_time < datetime.now():
                 db.session.add(Review(
                     rating=random.randint(3, 5),
@@ -232,7 +220,6 @@ with app.app_context():
     db.session.commit()
 
     print("🌱 Seeding saved events & reports...")
-
     for attendee in users[5:]:
         for _ in range(random.randint(1, 4)):
             db.session.add(SavedEvent(
@@ -242,16 +229,17 @@ with app.app_context():
 
     for admin in users[:2]:
         for _ in range(10):
+            event_id = random.choice(all_events).id
             db.session.add(Report(
                 report_data="Auto-generated monthly performance.",
                 admin_id=admin.id,
-                event_id=random.choice(all_events).id
+                event_id=event_id
             ))
             db.session.add(AuditLog(
                 action="Generated report",
                 user_id=admin.id,
                 target_type="Event",
-                target_id=random.choice(all_events).id,
+                target_id=event_id,
                 status="Success",
                 ip_address="127.0.0.1",
                 extra_data={"tool": "Seeder", "reason": "load test"}

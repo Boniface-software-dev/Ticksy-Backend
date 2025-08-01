@@ -18,13 +18,28 @@ profile_parser.add_argument("phone", type=str)
 class MyProfile(Resource):
     @jwt_required()
     def get(self):
-        user = User.query.get(get_jwt_identity())
+        user_id = get_jwt_identity()
+        print("JWT Identity:", user_id)
+        print("Authorization Header:", request.headers.get("Authorization"))
+
+        user = User.query.get(user_id)
         if not user:
             return {"message": "User not found."}, 404
+        
+        return {
+                "id": user.id,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "email": user.email,
+                "phone": user.phone,
+                "role": user.role,
+                "status": user.status,
+                "created_at": user.created_at.isoformat()
+            }, 200
 
-        return user.to_dict(only=(
-            "id", "first_name", "last_name", "email", "phone", "role", "status", "created_at"
-        )), 200
+        ##return user.to_dict(only=(
+        ##    "id", "first_name", "last_name", "email", "phone", "role", "status", "created_at"
+        ##)), 200
 
 # ---------- PUT: Update Profile ----------
 class UpdateProfile(Resource):

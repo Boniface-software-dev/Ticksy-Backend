@@ -7,11 +7,11 @@ import uuid
 from datetime import datetime
 from resources.mpesaConfig import initiate_stk_push
 
-
 order_parser = reqparse.RequestParser()
 order_parser.add_argument("ticket_id", type=int, required=True)
 order_parser.add_argument("quantity", type=int, required=True)
 order_parser.add_argument("attendees", type=list, location="json", required=True)
+
 
 class CreateOrder(Resource):
     @jwt_required()
@@ -27,10 +27,14 @@ class CreateOrder(Resource):
         if not attendees:
             return {"message": "Attendee details are required."}, 400
 
+        if len(attendees) != data.get("quantity", 0):
+            return {"message": "Mismatch between quantity and attendee details."}, 400
+
         try:
             ticket_groups = {}
             total = 0
 
+            # Group attendees by ticket_id
             for att in attendees:
                 tid = att.get("ticket_id")
                 if tid is None:
@@ -48,7 +52,7 @@ class CreateOrder(Resource):
 
             for ticket_id, group in ticket_groups.items():
                 ticket = Ticket.query.get(ticket_id)
-                if not ticket or ticket.quantity - ticket.sold < len(group):
+                if not ticket or (ticket.quantity - ticket.sold) < len(group):
                     return {"message": f"Not enough tickets for type ID {ticket_id}."}, 400
 
                 total += ticket.price * len(group)
@@ -75,7 +79,6 @@ class CreateOrder(Resource):
             order.total_amount = total
             db.session.commit()
 
-            # STK Push
             primary_phone = attendees[0]["phone"]
             stk_response = initiate_stk_push(primary_phone, int(total), order.order_id)
 
@@ -91,7 +94,7 @@ class CreateOrder(Resource):
             return {
                 "message": "Order placed. Check your phone to complete M-Pesa payment.",
                 "order": order.to_dict(only=("id", "order_id", "status", "total_amount", "created_at")),
-                "payment_url": None,  # STK Push does not need a redirect
+                "payment_url": None,
                 "stk_response": stk_response
             }, 201
 
@@ -119,7 +122,7 @@ class ConfirmPayment(Resource):
             return {"message": "Order not found or unauthorized."}, 404
 
         order.status = "paid"
-        order.mpesa_receipt = str(uuid.uuid4()) 
+        order.mpesa_receipt = str(uuid.uuid4())
         db.session.commit()
 
         log_action(
