@@ -90,7 +90,24 @@ class Login(Resource):
         user = User.query.filter_by(email=email).first()
 
         if user and bcrypt.checkpw(password, user.password.encode('utf-8')):
-            token = create_access_token(identity=str(user.id), expires_delta=timedelta(days=1))
+
+            
+            if user.status == "banned":
+                log_action(
+                    user_id=user.id,
+                    action="Login Attempt (Banned)",
+                    target_type="User",
+                    target_id=user.id,
+                    status="Failed",
+                    ip_address=request.remote_addr,
+                    extra_data="User is banned"
+                )
+                return {
+                    "message": "Your account has been banned. Please contact support."
+                }, 403
+
+           
+            token = create_access_token(identity=user.id, expires_delta=timedelta(days=1))
 
             log_action(
                 user_id=user.id,
@@ -114,6 +131,7 @@ class Login(Resource):
                 }
             }, 200
 
+        
         log_action(
             user_id=user.id if user else None,
             action="Login",

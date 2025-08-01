@@ -27,7 +27,9 @@ class SaveEvent(Resource):
                 action = "Unsave"
                 message = "Event removed from saved list."
             else:
-                saved = SavedEvent(user_id=user_id, event_id=id)
+                saved = SavedEvent()
+                saved.user_id = user_id
+                saved.event_id = id
                 db.session.add(saved)
                 action = "Save"
                 message = "Event saved successfully."
@@ -57,21 +59,24 @@ class SaveEvent(Resource):
                 extra_data=str(e)
             )
             return {"message": "An error occurred."}, 500
-        
+    
 class MySavedEvents(Resource):
-    @jwt_required()
-    def get(self):
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
+        @jwt_required()
+        def get(self):
+            user_id = get_jwt_identity()
+            user = User.query.get(user_id)
+    
+            if not user or user.role != "attendee":
+                return {"message": "Only attendees can view saved events."}, 403
+    
+            saved = SavedEvent.query.filter_by(user_id=user_id).all()
+    
+            return [
+                s.to_dict(only=(
+                    "event.id", "event.title", "event.location", "event.start_time",
+                    "event.status", "event.image_url"
+                )) for s in saved
+            ], 200
 
-        if not user or user.role != "attendee":
-            return {"message": "Only attendees can view saved events."}, 403
+        
 
-        saved = SavedEvent.query.filter_by(user_id=user_id).all()
-
-        return [
-            s.to_dict(only=(
-                "event.id", "event.title", "event.location", "event.start_time",
-                "event.status", "event.image_url"
-            )) for s in saved
-        ], 200

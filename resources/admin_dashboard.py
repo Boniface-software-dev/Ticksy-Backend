@@ -83,19 +83,30 @@ class AdminAuditLogs(Resource):
 
         logs = AuditLog.query.order_by(AuditLog.timestamp.desc()).limit(100).all()
 
+       
         log_action(
             user_id=admin.id,
-            action="Viewed Audit Logs",
+            action=f"{admin.first_name} viewed audit logs",
             target_type="AuditLog",
             target_id=None,
             status="Success",
             ip_address=request.remote_addr
         )
 
-        return [
-            l.to_dict(only=(
-                "id", "user_id", "action", "target_type", "target_id",
-                "status", "ip_address", "timestamp", "extra_data"
-            )) for l in logs
-        ], 200
-   
+        result = []
+        for log in logs:
+            user = log.user  # via relationship
+            result.append({
+                "id": log.id,
+                "user_id": log.user_id,
+                "user_name": f"{user.first_name} {user.last_name}" if user else "System",
+                "action": log.action,
+                "target_type": log.target_type,
+                "target_id": log.target_id,
+                "status": log.status,
+                "ip_address": log.ip_address,
+                "timestamp": log.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+                "extra_data": log.extra_data
+            })
+
+        return result, 200
