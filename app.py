@@ -36,6 +36,8 @@ from resources.attendees import EventAttendees,CheckInAttendee, CheckOutAttendee
 
 from resources.attendee_profile import UpcomingAttendeeEvents, PastAttendeeEvents
 
+from resources.payment import PaymentResource, PaymentCallbackResource, CheckPaymentResource
+
 load_dotenv()
 
 
@@ -66,6 +68,7 @@ CORS(app,
             "http://localhost:5173",
             "http://127.0.0.1:5174",
             "http://localhost:5174",
+            "https://7a8db34b92e4.ngrok-free.app",
             "https://ticksy-frontend.vercel.app",
         ],
         "methods": ["GET", "PATCH", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -145,6 +148,10 @@ api.add_resource(PastAttendeeEvents, "/attendee/past-events")
 api.add_resource(EventAttendees, '/organizer/events/<int:event_id>/attendees')
 api.add_resource(CheckInAttendee, "/organizer/checkin/<int:pass_id>")
 api.add_resource(CheckOutAttendee, "/organizer/checkout/<int:pass_id>")
+
+api.add_resource(PaymentResource, "/payments")
+api.add_resource(PaymentCallbackResource, "/payments/callback")
+api.add_resource(CheckPaymentResource, "/payments/check/<string:checkout_request_id>")
 
 
 
