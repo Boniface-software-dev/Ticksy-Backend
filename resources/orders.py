@@ -22,20 +22,20 @@ class CreateOrder(Resource):
         ticket_data_list = data.get("tickets")
 
         if not phone or not ticket_data_list:
-            return jsonify({"message": "Phone and tickets are required"}), 400
+            return {"message": "Phone and tickets are required"}, 400
 
         current_user_id = int(get_jwt_identity())
         attendee = User.query.get(current_user_id)
 
         if attendee.role != "attendee":
-            return jsonify({"message": "Only attendees can make purchases"}), 403
+            return {"message": "Only attendees can make purchases"}, 403
 
         # Calculate total amount
         total_amount = 0
         for ticket_data in ticket_data_list:
             ticket = Ticket.query.get(ticket_data["ticket_id"])
             if not ticket:
-                return jsonify({"message": f"Ticket with ID {ticket_data['ticket_id']} not found"}), 404
+                return {"message": f"Ticket with ID {ticket_data['ticket_id']} not found"}, 404
             total_amount += ticket.price * ticket_data["quantity"]
 
         # Create Order
@@ -53,7 +53,7 @@ class CreateOrder(Resource):
             attendees_list = ticket_data.get("attendees", [])
 
             if len(attendees_list) != quantity:
-                return jsonify({"message": f"Attendee info mismatch for ticket {ticket_id}"}), 400
+                return {"message": f"Attendee info mismatch for ticket {ticket_id}"}, 400
 
             order_item = OrderItem(
                 order=order,
