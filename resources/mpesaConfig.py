@@ -35,7 +35,7 @@ def initiate_stk_push(phone_number, amount, order_id):
         "PartyA": phone_number,
         "PartyB": MPESA_SHORTCODE,
         "PhoneNumber": phone_number,
-        "CallBackURL": "https://yourdomain.com/api/v1/mpesa/callback",  # Replace with your live endpoint
+        "CallBackURL": "https://ticksy-frontend.vercel.app/api/v1/mpesa/callback",
         "AccountReference": order_id,
         "TransactionDesc": "Ticket Order Payment"
     }
