@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 from sqlalchemy.orm import validates
 from sqlalchemy_serializer import SerializerMixin
+from sqlalchemy.dialects.postgresql import JSON
 from datetime import datetime
 import re
 
@@ -99,6 +100,7 @@ class OrderItem(db.Model, SerializerMixin):
 
     order_id = db.Column(db.Integer, db.ForeignKey("orders.id"))
     ticket_id = db.Column(db.Integer, db.ForeignKey("tickets.id"))
+    temp_attendee_data = db.Column(JSON, nullable=True)
 
     order = db.relationship("Order", back_populates="order_items")
     ticket = db.relationship("Ticket", back_populates="order_items")
