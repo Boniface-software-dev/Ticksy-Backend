@@ -78,7 +78,6 @@ class CreateEvent(Resource):
                     image,
                     folder="events",
                     use_filename=True,
-                    unique_filename=False
                 )
                 image_url = upload_result.get("secure_url")
 
@@ -151,7 +150,6 @@ class UpdateEvent(Resource):
                     image_file,
                     folder="events",
                     use_filename=True,
-                    unique_filename=False,
                     resource_type="image"
                 )
                 event.image_url = result['secure_url']
